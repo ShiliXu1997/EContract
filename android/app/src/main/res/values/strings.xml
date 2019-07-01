@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">电子合同</string>
+
+    <string name="register_tittle">注册</string>
+    <string name="register_userName">真实姓名</string>
+    <string name="register_cardId">身份证号</string>
+    <string name="register_pin">PIN码</string>
+    <string name="register_request">申请注册</string>
+
+    <string name="login_tittle">登录</string>
+    <string name="login_userId">用户账号</string>
+    <string name="login_pin">PIN码</string>
+</resources>

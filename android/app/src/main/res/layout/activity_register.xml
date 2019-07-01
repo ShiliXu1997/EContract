@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/register_usrName_editText"
+        android:layout_width="@dimen/register_editText_width"
+        android:layout_height="@dimen/register_editText_height"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/register_marginTop"
+        android:hint="@string/register_userName" />
+
+    <EditText
+        android:id="@+id/register_cardId_editText"
+        android:layout_width="@dimen/register_editText_width"
+        android:layout_height="@dimen/register_editText_height"
+        android:layout_gravity="center"
+        android:hint="@string/register_cardId" />
+
+    <EditText
+        android:id="@+id/register_pin_editText"
+        android:layout_width="@dimen/register_editText_width"
+        android:layout_height="@dimen/register_editText_height"
+        android:layout_gravity="center"
+        android:hint="@string/register_pin" />
+
+    <Button
+        android:id="@+id/register_button"
+        android:layout_width="@dimen/register_button_width"
+        android:layout_height="@dimen/register_button_height"
+        android:layout_gravity="center"
+        android:text="@string/register_request" />
+
+</LinearLayout>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="main_layout_marginEnd">8dp</dimen>
+    <dimen name="main_text_marginTop">480dp</dimen>
+    <dimen name="main_button_width">342dp</dimen>
+    <dimen name="main_button_height">60dp</dimen>
+
+    <dimen name="register_marginTop">240dp</dimen>
+    <dimen name="register_editText_width">340dp</dimen>
+    <dimen name="register_editText_height">60dp</dimen>
+    <dimen name="register_button_width">150dp</dimen>
+    <dimen name="register_button_height">60dp</dimen>
+
+    <dimen name="login_marginTop">250dp</dimen>
+    <dimen name="login_editText_width">340dp</dimen>
+    <dimen name="login_editText_height">60dp</dimen>
+    <dimen name="login_button_width">150dp</dimen>
+    <dimen name="login_button_height">60dp</dimen>
+
+</resources>
