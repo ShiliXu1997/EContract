@@ -4,10 +4,29 @@
     <string name="register_tittle">注册</string>
     <string name="register_userName">真实姓名</string>
     <string name="register_cardId">身份证号</string>
-    <string name="register_pin">PIN码</string>
+    <string name="register_pin">设置口令</string>
     <string name="register_request">申请注册</string>
 
     <string name="login_tittle">登录</string>
     <string name="login_userId">用户账号</string>
-    <string name="login_pin">PIN码</string>
+    <string name="login_pin">口令</string>
+
+    <string name="register_beforeRegister_hint">
+        您的本次注册需要提供您的真实姓名与身份证号，待管理员对您的信息审核通过后，您将得到只属于您的用户ID，请务必记住！
+        您设置的口令将用于保护保存在本设备的私钥，以后您在本台设备的登录都要输入它。
+        点击【申请注册】按钮，提交注册信息并设置口令，即可获取您的用户ID。
+    </string>
+    <string name="register_waitForApprove_hint">
+        您已成功提交注册申请!待管理员对您的信息审批通过后，您的账户才正式生效。
+        现在系统发放给您唯一的用户ID【%1$s】，请务必记住它，以后您在任何移动设备的登录都要靠它！
+        登录本设备时，您只要输入用户ID以及您刚刚设定的口令，即可完成登录。
+    </string>
+    <string name="register_fail_hint">
+        您的本次提交注册因为某种原因没有成功，请重新填写信息再次尝试！
+    </string>
+
+    <string name="failToLogin_tittle">登录失败</string>
+    <string name="failToLogin_hint">
+        登录失败！原因可能是您注册的账户尚未通过管理员的审批，也可能是您的用户ID或口令输入错误。
+    </string>
 </resources>

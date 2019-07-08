@@ -1,6 +1,8 @@
 package com.example.android;
 
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +20,11 @@ import java.net.URL;
 import java.util.Map;
 
 public class HttpUtil {
+
+    public static final int MESSAGE_REGISTER_SUCCESS_RESPONSE = 0x00005000;
+    public static final int MESSAGE_REGISTER_FAIL_RESPONSE = 0x00005001;
+    public static final int MESSAGE_LOGIN_SUCCESS_RESPONSE = 0x00005002;
+    public static final int MESSAGE_LOGIN_FAIL_RESPONSE = 0x00005003;
 
     private static HttpUtil mHttpUtil = new HttpUtil();
     private static String mBaseAddress = "http://47.95.214.69";
@@ -41,9 +48,9 @@ public class HttpUtil {
         return mServerPublicKey;
     }
 
-    public void register(String userName, String cardId) {
+    public void register(String userName, String cardId, Handler handler) {
         String serverPublicKey = getServerPublicKey();
-        RequestToRegister requestToRegister = new RequestToRegister();
+        RequestToRegister requestToRegister = new RequestToRegister(handler);
         JSONArray requests = new JSONArray();
         try {
             JSONObject address = new JSONObject();
@@ -66,13 +73,19 @@ public class HttpUtil {
             data.put("public_key", userPublicKey);
             data.put("time", time);
             data.put("signed_hash", SecurityUtil.hashBySHA1(userName + cardId + phoneId + userPublicKey + time));
+            String desData = SecurityUtil.encryptStringByDESKeyString(data.toString(), key);
 
             JSONObject body = new JSONObject();
             body.put("encrypted_key", encryptedKey);
-            body.put("data", data);
+            body.put("data", desData);
+
+            JSONObject info = new JSONObject();
+            info.put("user_name", userName);
+            info.put("private_key", userPrivateKey);
 
             requests.put(address);
             requests.put(body);
+            requests.put(info);
         } catch (JSONException jsonException) {
             jsonException.printStackTrace();
         }
@@ -159,6 +172,12 @@ public class HttpUtil {
 
     private class RequestToRegister extends AsyncTask<JSONArray, Integer, JSONObject> {
 
+        private Handler mHandler;
+
+        public RequestToRegister(Handler handler) {
+            mHandler = handler;
+        }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -169,6 +188,10 @@ public class HttpUtil {
             try {
                 JSONObject address = requests[0].getJSONObject(0);
                 JSONObject body = requests[0].getJSONObject(1);
+                JSONObject info = requests[0].getJSONObject(2);
+
+                String userName = (String) info.get("user_name");
+                String userPrivateKey = (String) info.get("private_key");
 
                 URL url = new URL((String) address.get("address"));
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -185,6 +208,42 @@ public class HttpUtil {
 
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     InputStream inputStream = connection.getInputStream();
+                    Message message = mHandler.obtainMessage();
+
+                    JSONObject response = getJSONObjectFromInputStream(inputStream);
+                    String encryptedKey = (String) response.get("encrypted_key");
+                    String key = SecurityUtil.decryptStringByRSAPrivateKeyString(encryptedKey, userPrivateKey);
+                    int statusCode = (int) response.get("status_code");
+
+                    JSONObject mesObj = new JSONObject();
+                    switch (statusCode) {
+                        case 200:
+                            message.what = HttpUtil.MESSAGE_REGISTER_FAIL_RESPONSE;
+
+                            String desData = (String) response.get("data");
+                            JSONObject data = new JSONObject(SecurityUtil.decryptStringByDESKeyString(desData, key));
+                            String userId = (String) data.get("user_id");
+                            String signedHash = (String) data.get("signed_hash");
+
+                            if (SecurityUtil.hashBySHA1(userId).equals(SecurityUtil.decryptStringByRSAPublicKeyString(signedHash, mServerPublicKey))) {
+                                mesObj.put("user_name", userName);
+                                mesObj.put("user_id", userId);
+                                mesObj.put("error", null);
+                            } else {
+                                mesObj.put("error", "Got malicious message!");
+                            }
+                            message.obj = mesObj;
+                            break;
+                        case 400:
+                            message.what = HttpUtil.MESSAGE_REGISTER_FAIL_RESPONSE;
+
+                            mesObj.put("error", "Server doesn't distribute any ID!");
+                            message.obj = mesObj;
+                            break;
+                        default:
+                            break;
+                    }
+                    message.sendToTarget();
                 }
                 else {
                     System.out.println("POST to register failed!");

@@ -6,7 +6,8 @@
     <dimen name="main_button_width">342dp</dimen>
     <dimen name="main_button_height">60dp</dimen>
 
-    <dimen name="register_marginTop">240dp</dimen>
+    <dimen name="register_hint_marginTop">140dp</dimen>
+    <dimen name="register_hint_marginBottom">40dp</dimen>
     <dimen name="register_editText_width">340dp</dimen>
     <dimen name="register_editText_height">60dp</dimen>
     <dimen name="register_button_width">150dp</dimen>
