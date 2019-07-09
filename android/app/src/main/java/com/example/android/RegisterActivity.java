@@ -1,6 +1,5 @@
 package com.example.android;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,11 +11,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import utils.HttpUtil;
 
 import static android.content.ContentValues.TAG;
 
@@ -33,21 +34,21 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(com.example.android.R.layout.activity_register);
 
         ActionBar mActionBar = getSupportActionBar();
         if (mActionBar != null) {
             mActionBar.setDisplayShowTitleEnabled(true);
-            mActionBar.setTitle(getResources().getString(R.string.register_tittle));
+            mActionBar.setTitle(getResources().getString(com.example.android.R.string.register_tittle));
             mActionBar.setHomeButtonEnabled(true);
             mActionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        mHintTextView = findViewById(R.id.register_hint_textView);
-        mUserNameEdit = findViewById(R.id.register_usrName_editText);
-        mCardIdEdit = findViewById(R.id.register_cardId_editText);
-        mPinEdit = findViewById(R.id.register_pin_editText);
-        mRegisterButton = findViewById(R.id.register_button);
+        mHintTextView = findViewById(com.example.android.R.id.register_hint_textView);
+        mUserNameEdit = findViewById(com.example.android.R.id.register_usrName_editText);
+        mCardIdEdit = findViewById(com.example.android.R.id.register_cardId_editText);
+        mPinEdit = findViewById(com.example.android.R.id.register_pin_editText);
+        mRegisterButton = findViewById(com.example.android.R.id.register_button);
 
         mPinEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
 
@@ -65,12 +66,12 @@ public class RegisterActivity extends AppCompatActivity {
                         case HttpUtil.MESSAGE_REGISTER_SUCCESS_RESPONSE:
                             JSONObject mesObj = (JSONObject) message.obj;
                             String userId = (String) mesObj.get("user_id");
-                            String successString = getString(R.string.register_waitForApprove_hint);
+                            String successString = getString(com.example.android.R.string.register_waitForApprove_hint);
                             successString = String.format(successString, userId);
                             mHintTextView.setText(successString);
                             break;
                         case HttpUtil.MESSAGE_REGISTER_FAIL_RESPONSE:
-                            String failString = getString(R.string.register_fail_hint);
+                            String failString = getString(com.example.android.R.string.register_fail_hint);
                             mHintTextView.setText(failString);
                             break;
                         default:
@@ -107,7 +108,7 @@ public class RegisterActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             switch(v.getId()) {
-                case R.id.register_button:
+                case com.example.android.R.id.register_button:
                     String userName = mUserNameEdit.getText().toString();
                     String cardId = mCardIdEdit.getText().toString();
                     String pin = mPinEdit.getText().toString();

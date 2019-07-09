@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/AppTheme"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/scanner_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
+    <RelativeLayout
+        android:id="@+id/include_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/include"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_weight="1.98">
+
+        <SurfaceView
+            android:id="@+id/scanner_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center" />
+
+        <com.google.zxing.view.ViewfinderView
+            android:id="@+id/viewfinder_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:corner_color="@color/corner_color"
+            app:frame_color="@color/viewfinder_frame"
+            app:label_text="二维码/条形码扫描"
+            app:label_text_color="@color/colorAccent"
+            app:laser_color="@color/laser_color"
+            app:mask_color="@color/viewfinder_mask"
+            app:result_color="@color/result_view"
+            app:result_point_color="@color/result_point_color" />
+
+        <!--<ImageButton-->
+            <!--android:id="@+id/flash"-->
+            <!--android:layout_width="100dp"-->
+            <!--android:layout_height="120dp"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:layout_marginTop="76dp"-->
+            <!--android:clickable="true"-->
+            <!--android:visibility="visible"-->
+            <!--app:fabSize="normal"-->
+            <!--app:srcCompat="@drawable/flash" />-->
+        <Button
+            android:id="@+id/flash"
+            android:layout_width="150dp"
+            android:layout_height="80dp"
+            android:background="#00000000"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="76dp"
+            android:clickable="true"
+            android:text="轻触照亮"
+            android:textSize="15dp"
+            android:visibility="visible"
+            app:fabSize="normal" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@id/include_main"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="296dp"
+            android:layout_height="413dp">
+
+            <!--<ImageButton-->
+                <!--android:id="@+id/flash"-->
+                <!--android:layout_width="456dp"-->
+                <!--android:layout_height="661dp"-->
+                <!--android:layout_alignParentBottom="true"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:layout_marginBottom="76dp"-->
+                <!--android:clickable="true"-->
+                <!--android:visibility="visible"-->
+                <!--app:fabSize="normal"-->
+                <!--app:srcCompat="@drawable/flash" />-->
+        </LinearLayout>
+    </RelativeLayout>
+
+
+
+</RelativeLayout>
