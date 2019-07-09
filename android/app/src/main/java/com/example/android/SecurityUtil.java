@@ -1,5 +1,7 @@
 package com.example.android;
 
+import android.util.Base64;
+
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -14,7 +16,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,11 +31,11 @@ import javax.crypto.spec.DESKeySpec;
 public class SecurityUtil {
 
     public static String base64Encode(byte[] bytes) {
-        return Base64.getEncoder().encodeToString(bytes);
+        return Base64.encodeToString(bytes, Base64.NO_WRAP);
     }
 
     public static byte[] base64Decode(String str) {
-        return Base64.getDecoder().decode(str);
+        return Base64.decode(str, Base64.NO_WRAP);
     }
 
     public static String getDESKeyString() {
