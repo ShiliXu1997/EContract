@@ -28,4 +28,12 @@
     <dimen name="pincode_login_button_width">150dp</dimen>
     <dimen name="pincode_login_button_height">60dp</dimen>
 
+    <dimen name="login_marginTop">50dp</dimen>
+    <dimen name="login_editText_width">340dp</dimen>
+    <dimen name="login_editText_height">60dp</dimen>
+    <dimen name="login_button_width">150dp</dimen>
+    <dimen name="login_button_height">60dp</dimen>
+
+    <dimen name="fab_margin">16dp</dimen>
+
 </resources>

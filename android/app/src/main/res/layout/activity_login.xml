@@ -4,28 +4,76 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:id="@+id/input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1">
 
-    <TextView
-        android:id="@+id/login_hint_textView"
-        android:layout_width="337dp"
-        android:layout_height="105dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="@dimen/login_hint_marginTop"
-        android:layout_marginBottom="@dimen/login_hint_marginBottom"
-        android:text="@string/login_hint" />
+            <EditText
+                android:id="@+id/login_usrId_editText"
+                android:layout_width="@dimen/login_editText_width"
+                android:layout_height="@dimen/login_editText_height"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/login_marginTop"
+                android:hint="@string/login_userId" />
 
-    <Button
-        android:id="@+id/qrcode_login_button"
-        android:layout_width="@dimen/qrcode_login_button_width"
-        android:layout_height="@dimen/qrcode_login_button_height"
-        android:layout_gravity="center"
-        android:text="@string/qrcode_login_tittle" />
+            <EditText
+                android:id="@+id/login_pin_editText"
+                android:layout_width="@dimen/login_editText_width"
+                android:layout_height="@dimen/login_editText_height"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="150dp"
+                android:hint="@string/login_pin" />
 
-    <Button
-        android:id="@+id/pincode_login_button"
-        android:layout_width="@dimen/pincode_login_button_width"
-        android:layout_height="@dimen/pincode_login_button_height"
-        android:layout_gravity="center"
-        android:text="@string/pincode_login_tittle" />
+            <ImageView
+                android:id="@+id/qr_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:visibility="invisible" />
+
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_below="@id/input">
+
+            <Button
+                android:id="@+id/login_button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/login_button_height"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="#00000000"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:textColor="@color/colorPrimaryDark"
+                android:text="口令登录" />
+
+            <Button
+                android:id="@+id/qr_login_button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/login_button_height"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:background="#00000000"
+                android:textSize="18sp"
+                android:textColor="@color/colorPrimaryDark"
+                android:text="扫码登录" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
 
 </LinearLayout>

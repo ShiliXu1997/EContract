@@ -27,6 +27,8 @@
         如果您是在本台设备注册的用户账号，或者已经在本台设备进行过登录，请选择口令登录。
         如果是在其他设备注册的用户账号，且是第一次登录本台设备，那么请选择二维码登录，让已登录的设备对本设备进行扫码验证。
     </string>
+    <string name="login_userId">用户账号</string>
+    <string name="login_pin">口令</string>
 
     <string name="qrcode_login_tittle">二维码登录</string>
     <string name="qrcode_login_userId">用户账号</string>
@@ -39,4 +41,19 @@
     <string name="failToLogin_hint">
         登录失败！原因可能是您注册的账户尚未通过管理员的审批，也可能是您的用户ID或口令输入错误。
     </string>
+
+
+    <string name="back">返回</string>
+    <string name="forward">前进</string>
+    <string name="renew">刷新</string>
+    <string name="home">主页</string>
+    <string name="menu">菜单</string>
+    <string name="encode_qrcode">生成二维码</string>
+    <string name="dencode_qrcode">扫描二维码</string>
+    <string name="code_text">请输入生成二维码的文本信息</string>
+    <string name="qrcodetext">这里显示扫描结果</string>
+
+    <string name="confirm_login_text">新设备请求登录,是否授权,授权后新设备将拥有与本设备相同的权限</string>
+    <string name="confirm_login">确认授权</string>
+    <string name="cancal_confirm_login">取消</string>
 </resources>

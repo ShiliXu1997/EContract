@@ -1,4 +1,4 @@
-package com.example.android;
+package utils;
 
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -32,7 +32,7 @@ public class HttpUtil {
 
     private static HttpUtil mHttpUtil = new HttpUtil();
 //    private static String mBaseAddress = "http://121.250.213.89:8080";
-private static String mBaseAddress = "http://211.87.230.17:8080";
+    private static String mBaseAddress = "http://47.95.214.69:1002";
     private static String mServerPublicKey = "";
 //    private static String mServerPrivateKey = "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAOEgvboMuy7FoeDEZ5A18AQx0qSXfPVFCBXAtvOupcUWBWfX+gYziFCG8eFzxw/QWZjrpoDyjuQPOZ0qfqo3pNXbB5IzO4QP35dxH7zQYJpsfJyftu3ij4DrWec+97M72sa6gpTPUH5ng9csy2nQDhNZHFUYfk2SQ3l72O1yr1TBAgMBAAECgYBRylVjvLBcw8yWHoUJra7vtzIyPh9V9KiFTqipS7BKND/uhFb/3cUOjJhgMnIF2spSdnrdqkIjtSxXX1L5gJHPucZA3jrhsqE6F8dRgq+uAqV5KdA0O+WLVaJ1o/f3SBwDrvBB1e9L7i5wTEFFq42Z9//ENzEVVoNYjaVkhDn/gQJBAPxJozKuNyHtWhLnlSpEq8tfV9mH1wqkjIUyUjq6JqMrXnkd5oivE/UyHa55nNR8TGqqCaJ57I4E5tXDITZ5LIkCQQDkcMsbhSbEEaCNnpsD9Zr0mMQEuR7Bcu4V+FM2BoIUkydecfuvytVIKxPYDv1r3nFD+BDwgkxVoMopCt9KnQh5AkBZy2PYwAVDgBVVMTP4TWTQB+letWimkxaoudZmrKbf4KnJdgj9kUMLPIEv/n0BbBROyqKPP9IgYkI+xyrlFo/xAkEAhyApJFg4vBXpMJw2+bqYNEMBAAI4rRk8uAYxwm1LGLyKtxUZWbzTOGMy08TaJqpnuVrNOlb4rFX1/x0NQ+drkQJBAJrVKk/epJmOVu4gm7SM7/qMd9H/ZqWOxJb3kM0X3FN4EKYFuv9sRFu0mJoWUWugq1hELf89KefwCdzsIylDoP0=";
 
@@ -105,8 +105,50 @@ private static String mBaseAddress = "http://211.87.230.17:8080";
         requestToRegister.execute(requests);
     }
 
-    public void login(String userId) {
+    public void login(String userId,String pin,Handler handler) {
         String serverPublicKey = getServerPublicKey();
+        System.out.println("serverPubKey:"+serverPublicKey);
+        RequestToLogin requestToLogin = new RequestToLogin(handler);
+        JSONArray requests = new JSONArray();
+
+        try {
+            JSONObject address = new JSONObject();
+            address.put("address", mBaseAddress + "/app/normal_login");
+
+            Map<String, String> userKeyPair = SecurityUtil.getRSAKeyPair();
+            String userPublicKey = userKeyPair.get("public_key");
+            String userPrivateKey = userKeyPair.get("private_key");
+
+            String key = SecurityUtil.getDESKeyString();
+            Log.v(TAG, "随机生成的对称密钥是：" + key);
+            String encryptedKey = SecurityUtil.encryptStringByRSAPublicKeyString(key, serverPublicKey);
+            Log.v(TAG, "已成功使用公钥加密对称钥");
+
+            String signedHash = SecurityUtil.signStringByRSAPrivateKeyString(userId, userPrivateKey);
+
+            String phoneId = "Xiaomi 9 SE";
+            JSONObject data = new JSONObject();
+            data.put("user_id", userId);
+            data.put("signed_hash", signedHash);
+            String desData = SecurityUtil.encryptStringByDESKeyString(data.toString(), key);
+
+            JSONObject body = new JSONObject();
+            body.put("encrypted_key", encryptedKey);
+            body.put("data", desData);
+
+
+            JSONObject info = new JSONObject();
+            info.put("private_key", userPrivateKey);
+
+            requests.put(address);
+            requests.put(body);
+            requests.put(info);
+
+            Log.v(TAG, "已构造好注册请求");
+        } catch (JSONException jsonException) {
+            jsonException.printStackTrace();
+        }
+        requestToLogin.execute(requests);
 
     }
 
@@ -179,6 +221,112 @@ private static String mBaseAddress = "http://211.87.230.17:8080";
             HttpUtil.mServerPublicKey = result;
             Log.v(TAG, "服务器公钥是：" + HttpUtil.mServerPublicKey);
         }
+    }
+
+    private class RequestToLogin extends AsyncTask<JSONArray,Integer,JSONObject> {
+
+        private Handler mhandler;
+
+        public RequestToLogin(Handler handler) {
+            mhandler = handler;
+        }
+
+        @Override
+        protected  void onPreExecute() {
+            super.onPreExecute();
+        }
+
+
+
+        @Override
+        protected JSONObject doInBackground(JSONArray... requests) {
+            try {
+
+                JSONObject address = requests[0].getJSONObject(0);
+                JSONObject body = requests[0].getJSONObject(1);
+                JSONObject info = requests[0].getJSONObject(2);
+
+                String userPrivateKey = (String) info.get("private_key");
+
+                URL url = new URL((String) address.get("address"));
+
+                System.out.println(url);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setReadTimeout(5000);
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+                connection.setUseCaches(false);
+                connection.setRequestProperty("Content-type", "application/x-java-serialized-object");
+
+                PrintStream printStream = new PrintStream(connection.getOutputStream());
+                printStream.print(body.toString());
+                System.out.println("body:\n"+body.toString());
+                printStream.flush();
+                printStream.close();
+
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    Log.v(TAG, "响应码为200");
+                    InputStream inputStream = connection.getInputStream();
+                    Message message = mhandler.obtainMessage();
+                    Log.v(TAG, "已获取响应的输入流");
+                    JSONObject response = getJSONObjectFromInputStream(inputStream);
+                    String encryptedKey = (String) response.get("encrypted_key");
+                    String key = SecurityUtil.decryptStringByRSAPrivateKeyString(encryptedKey, userPrivateKey);
+
+                    Log.v(TAG, encryptedKey);
+                    Log.v(TAG, key);
+
+                    int statusCode = (int) response.get("status_code");
+
+                    JSONObject mesObj = new JSONObject();
+                    switch (statusCode) {
+                        case 200:
+                            message.what = HttpUtil.MESSAGE_REGISTER_FAIL_RESPONSE;
+
+                            String desData = (String) response.get("data");
+                            JSONObject data = new JSONObject(SecurityUtil.decryptStringByDESKeyString(desData, key));
+                            String token = (String) data.get("token");
+                            String signedHash = (String) data.get("signed_hash");
+
+                            if (SecurityUtil.verifyStringByRSAPublicKeyString(token, signedHash, mServerPublicKey)) {
+                                Log.v(TAG, "服务器的响应验签通过");
+                                mesObj.put("token", token);
+                                mesObj.put("error", null);
+                                Log.v(TAG, "获取到的token：" + token);
+                            } else {
+                                mesObj.put("error", "Got malicious message!");
+                            }
+                            message.obj = mesObj;
+                            break;
+                        case 400:
+                            message.what = HttpUtil.MESSAGE_REGISTER_FAIL_RESPONSE;
+
+                            mesObj.put("error", "Server doesn't distribute any ID!");
+                            message.obj = mesObj;
+                            break;
+                        default:
+                            break;
+                    }
+                    message.sendToTarget();
+                }
+                else {
+                    System.out.println("POST to register failed!");
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
     }
 
     private class RequestToRegister extends AsyncTask<JSONArray, Integer, JSONObject> {
