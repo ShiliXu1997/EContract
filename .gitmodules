@@ -1,0 +1,6 @@
+[submodule "webFE"]
+	path = webFE
+	url = https://github.com/depressedX/pki-web.git
+[submodule "admin-client"]
+	path = admin-client
+	url = https://github.com/depressedX/pki-contract-admin.git

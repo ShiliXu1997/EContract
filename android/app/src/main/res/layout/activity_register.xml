@@ -5,12 +5,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/register_hint_textView"
+        android:layout_width="350dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="@dimen/register_hint_marginTop"
+        android:layout_marginBottom="@dimen/register_hint_marginBottom"
+        android:layout_gravity="center"
+        android:text="@string/register_beforeRegister_hint" />
+
     <EditText
         android:id="@+id/register_usrName_editText"
         android:layout_width="@dimen/register_editText_width"
         android:layout_height="@dimen/register_editText_height"
         android:layout_gravity="center"
-        android:layout_marginTop="@dimen/register_marginTop"
         android:hint="@string/register_userName" />
 
     <EditText
