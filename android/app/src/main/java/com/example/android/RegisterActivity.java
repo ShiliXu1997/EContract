@@ -1,6 +1,5 @@
 package com.example.android;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,6 +16,8 @@ import androidx.appcompat.app.ActionBar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import utils.HttpUtil;
 
 import static android.content.ContentValues.TAG;
 

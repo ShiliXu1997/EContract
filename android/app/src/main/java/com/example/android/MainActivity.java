@@ -3,13 +3,10 @@ package com.example.android;
 import android.app.Activity;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.content.Intent;
 import android.widget.TextView;
-
-import static android.content.ContentValues.TAG;
 
 public class MainActivity extends Activity {
 
@@ -26,10 +23,10 @@ public class MainActivity extends Activity {
         mRegisterButton = findViewById(R.id.register_button);
         mLoginButton = findViewById(R.id.login_button);
 
+        String SerialNumber = android.os.Build.SERIAL;
+        mHelloText.setText(SerialNumber);
         setListener();
-        Log.v(TAG, "应用已成功打开");
-//        FileUtil.writeFile("miao.txt", "我爱你");
-//        FileUtil.readFile("miao.txt");
+
     }
 
     private void setListener() {
