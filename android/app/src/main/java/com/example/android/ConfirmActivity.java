@@ -10,14 +10,18 @@ import android.widget.Button;
 
 import org.json.JSONObject;
 
+import utils.HttpUtil;
+
 public class ConfirmActivity extends Activity implements View.OnClickListener {
-    public static final int CONFIRM_LOGIN_FINISHED=1;
+    public static final int CONFIRM_SUCCESS = 12306;
+    public static final int CONFIRM_FAIL = 12307;
+
 
     private Button confire_login;
     private Button cancal_confire_login;
-    private String login_code;
+    private String qrCode;
 
-    private Handler confire_login_hander;
+    private Handler mHander;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -27,8 +31,8 @@ public class ConfirmActivity extends Activity implements View.OnClickListener {
 
         //拿到扫描的二维码的内容
         Bundle receive=getIntent().getExtras();
-        this.login_code=receive.getString("qr_code");
-        System.out.println("成功得到二维码:"+login_code);
+        this.qrCode=receive.getString("qr_code");
+        System.out.println("成功得到二维码:"+qrCode);
 
         //实例化按钮并设置监听
         this.confire_login = (Button)findViewById(R.id.confirm_login_button);
@@ -36,29 +40,17 @@ public class ConfirmActivity extends Activity implements View.OnClickListener {
         this.cancal_confire_login = (Button)findViewById(R.id.cancal_login_button);
         cancal_confire_login.setOnClickListener(this);
 
-        this.confire_login_hander = new Handler() {
+        this.mHander = new Handler() {
             public void handleMessage(Message message) {
                 super.handleMessage(message);
                 int what = message.what;
                 try {
                     switch (what) {
-                        case ConfirmActivity.CONFIRM_LOGIN_FINISHED:
-                            JSONObject mesObj = (JSONObject) message.obj;
-                            Boolean if_success = (Boolean) mesObj.get("if_success");
-                            System.out.println("发送状态:"+if_success);
-//                            Toast toast=new Toast(this);
-//                            toast.setDuration(Toast.LENGTH_SHORT);//设置持续时间
-//                            toast.setGravity(Gravity.CENTER,0, 0);//设置对齐方式
-//                            LinearLayout ll=new LinearLayout(this);//创建一个线性布局管理器
-//                            ImageView imageView=new ImageView(this);
-//                            imageView.setImageResource(R.drawable.stop);
-//                            imageView.setPadding(0, 0, 5, 0);
-//                            ll.addView(imageView);
-//                            TextView tv=new TextView(this);
-//                            tv.setText("我是通过构造方法创建的消息提示框");
-//                            ll.addView(tv);
-//                            toast.setView(ll);//设置消息提示框中要显示的视图
-//                            toast.show();//显示消息提示框
+                        case ConfirmActivity.CONFIRM_SUCCESS:
+                            ConfirmActivity.this.finish();
+                            break;
+                        case ConfirmActivity.CONFIRM_FAIL:
+                            ConfirmActivity.this.finish();
                             break;
                     }
 
@@ -73,7 +65,7 @@ public class ConfirmActivity extends Activity implements View.OnClickListener {
     public void onClick(View view) {
         int vid = view.getId();
         if(vid==this.confire_login.getId()) {
-            authorization();
+            authorization(qrCode);
             Intent intent = new Intent(ConfirmActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         } else if(vid==this.cancal_confire_login.getId()) {
@@ -82,7 +74,10 @@ public class ConfirmActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    public void authorization() {
-        socket.socketclient.main_run("ws://47.95.214.69:1001",this.confire_login_hander);
+    private void authorization(String qrCode) {
+
+        String userId = "";
+        String phoneId = "";
+        HttpUtil.getInstance().confirm(qrCode,userId,phoneId,this.mHander);
     }
 }

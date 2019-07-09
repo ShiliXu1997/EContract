@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.InputType;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -21,10 +22,16 @@ import org.json.JSONObject;
 import utils.HttpUtil;
 import utils.QRCodeUtil;
 
+import static android.content.ContentValues.TAG;
+
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
-    public static final int GET_QR_CODE = 1;
-    public static final int GET_USR_ID = 2;
+    //口令登录成功
+    public static final int NORMAL_LOGIN_SUCCESS=1;
+    //获取后台二维码成功
+    public static final int GET_QR_CODE_SUCCESS = 2;
+    //后台二维码扫码登录成功
+    public static final int QR_LOGIN_SUCCESS = 3;
 
     private EditText mUserIdEdit;
     private EditText mPinEdit;
@@ -32,21 +39,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button mqrLoginButton;
     private ImageView qr_image;
 
-    private Handler login_handler;
+    private Handler mHandler;
 
     @SuppressLint("HandlerLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(com.example.android.R.layout.activity_login);
-
-        ActionBar mActionBar = getSupportActionBar();
-        if (mActionBar != null) {
-            mActionBar.setDisplayShowTitleEnabled(true);
-            mActionBar.setTitle(getResources().getString(com.example.android.R.string.login_tittle));
-            mActionBar.setHomeButtonEnabled(true);
-            mActionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        setActionBar("用户名登录");
 
         mUserIdEdit = findViewById(com.example.android.R.id.login_usrId_editText);
         mPinEdit = findViewById(com.example.android.R.id.login_pin_editText);
@@ -61,16 +61,41 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mLoginButton.setOnClickListener(this);
         mqrLoginButton.setOnClickListener(this);
 
-        login_handler = new Handler() {
+        mHandler = new Handler() {
             public void handleMessage(Message message) {
                 super.handleMessage(message);
                 int what = message.what;
+                JSONObject mess;
+                String token;
+                Intent intent;
                 try {
                     switch (what) {
-                        case LoginActivity.GET_QR_CODE:
-                            JSONObject mesObj = (JSONObject) message.obj;
-                            String qr_code = (String) mesObj.get("qr_code");
-                            show_qr_image(qr_code);
+                        case LoginActivity.GET_QR_CODE_SUCCESS:
+                            String qrCode = (String) message.obj;
+                            show_qr_image(qrCode);
+                            //开启长连接
+                            break;
+
+                        case LoginActivity.NORMAL_LOGIN_SUCCESS:
+                            /*
+                            拿到message返回的token值
+                            携带token值跳转到UserPageActivity
+                             */
+                            mess= (JSONObject) message.obj;
+                            token= (String)mess.get("token");
+                            intent = new Intent(LoginActivity.this, UserPageActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            break;
+                        case LoginActivity.QR_LOGIN_SUCCESS:
+                            /*
+                            拿到message返回的token值
+                            携带token值跳转到UserPageActivity
+                             */
+                            mess= (JSONObject) message.obj;
+                            token= (String)mess.get("token");
+                            //跳转到设定pin码
+                            intent = new Intent(LoginActivity.this, UserPageActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
                             break;
 
                     }
@@ -81,6 +106,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         };
 
+        Log.v(TAG, "准备获取公钥");
+        HttpUtil.initServerPublicKey();
 
     }
 
@@ -108,28 +135,32 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View view) {
         if(view.getId()==mLoginButton.getId()) {
             String userid = mUserIdEdit.getText().toString();
+            System.out.println("userid"+userid);
             String pin = mPinEdit.getText().toString();
 
             if(userid.isEmpty()||pin.isEmpty())
                 return;
 
             HttpUtil httpUtil = HttpUtil.getInstance();
-            httpUtil.login(userid, pin,login_handler);
+            httpUtil.login(userid, pin,mHandler);
 
-
-
-
-
-
-            Intent intent = new Intent(LoginActivity.this, UserPageActivity.class);
-            startActivity(intent);
-            qr_image.setVisibility(ImageView.INVISIBLE);
-            mUserIdEdit.setVisibility(EditText.VISIBLE);
-            mPinEdit.setVisibility(EditText.VISIBLE);
+            setActionBar("登录中...");
 
         } else if(view.getId()==mqrLoginButton.getId()) {
-            socket.socketclient.main_run("ws://47.95.214.69:1001",login_handler);
+            setActionBar("扫码登录");
+            HttpUtil.getInstance().getQrCode(mHandler);
         }
+    }
+
+    public void setActionBar(String barText) {
+        ActionBar mActionBar = getSupportActionBar();
+        if (mActionBar != null) {
+            mActionBar.setDisplayShowTitleEnabled(true);
+            mActionBar.setTitle(barText);
+            mActionBar.setHomeButtonEnabled(true);
+            mActionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
     }
 
 }

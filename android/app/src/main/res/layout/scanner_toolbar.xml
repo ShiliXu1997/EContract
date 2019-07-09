@@ -19,28 +19,6 @@
             android:layout_alignParentLeft="true"
             app:srcCompat="@android:drawable/ic_media_rew" />
 
-        <!--<TextView-->
-            <!--android:id="@+id/scanner_toolbar_back"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_weight="1"-->
-            <!--android:layout_marginRight="200dp"-->
-            <!--android:gravity="center_vertical"-->
-            <!--android:text="返回"-->
-            <!--android:textAlignment="center"-->
-            <!--android:textColor="#fff"-->
-            <!--android:textSize="16sp" />-->
-
-        <!--<TextView-->
-            <!--android:id="@+id/scanner_toolbar_title"-->
-            <!--android:layout_width="0dp"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_weight="1"-->
-            <!--android:gravity="center_vertical"-->
-            <!--android:text="二维码扫描"-->
-            <!--android:textAlignment="center"-->
-            <!--android:textColor="#fff"-->
-            <!--android:textSize="16sp" />-->
 
         <TextView
             android:id="@+id/scanner_toolbar_add"
@@ -52,15 +30,6 @@
             android:textAlignment="center"
             android:textColor="#fff"
             android:textSize="16sp" />
-
-        <!--<ImageView-->
-            <!--android:id="@+id/scanner_toolbar_add"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_weight="0.11"-->
-            <!--android:paddingLeft="20dp"-->
-            <!--android:paddingRight="10dp"-->
-            <!--app:srcCompat="@android:drawable/ic_input_add" />-->
 
 
     </RelativeLayout>

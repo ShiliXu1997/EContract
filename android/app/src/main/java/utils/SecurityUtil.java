@@ -56,7 +56,7 @@ public class SecurityUtil {
         try {
             DESKeySpec desKeySpec = new DESKeySpec(base64Decode(keyString));
             SecretKey secretKey = SecretKeyFactory.getInstance("DES").generateSecret(desKeySpec);
-            Cipher cipher = Cipher.getInstance("DES");
+            Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
             byte[] strBytes = str.getBytes();

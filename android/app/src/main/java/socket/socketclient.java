@@ -16,11 +16,11 @@ import java.net.URISyntaxException;
 
 public class socketclient extends WebSocketClient {
 
-    private Handler handler;
+    private Handler mHandler;
 
     public socketclient(URI serverUri,Handler handler) {
         super(serverUri);
-        this.handler = handler;
+        this.mHandler = handler;
     }
 
     @Override
@@ -31,8 +31,8 @@ public class socketclient extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         System.out.println("new message:" + message);
-        Message mess = handler.obtainMessage();
-        mess.what = LoginActivity.GET_QR_CODE;
+        Message mess = mHandler.obtainMessage();
+        mess.what = LoginActivity.GET_QR_CODE_SUCCESS;
         JSONObject mesObj = new JSONObject();
         try {
             mesObj.put("qr_code",message);

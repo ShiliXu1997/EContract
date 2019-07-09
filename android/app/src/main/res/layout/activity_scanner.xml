@@ -45,17 +45,7 @@
             app:result_color="@color/result_view"
             app:result_point_color="@color/result_point_color" />
 
-        <!--<ImageButton-->
-            <!--android:id="@+id/flash"-->
-            <!--android:layout_width="100dp"-->
-            <!--android:layout_height="120dp"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:layout_centerHorizontal="true"-->
-            <!--android:layout_marginTop="76dp"-->
-            <!--android:clickable="true"-->
-            <!--android:visibility="visible"-->
-            <!--app:fabSize="normal"-->
-            <!--app:srcCompat="@drawable/flash" />-->
+
         <Button
             android:id="@+id/flash"
             android:layout_width="150dp"
@@ -73,31 +63,7 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@id/include_main"
-        android:layout_weight="1">
 
-        <LinearLayout
-            android:layout_width="296dp"
-            android:layout_height="413dp">
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/flash"-->
-                <!--android:layout_width="456dp"-->
-                <!--android:layout_height="661dp"-->
-                <!--android:layout_alignParentBottom="true"-->
-                <!--android:layout_centerHorizontal="true"-->
-                <!--android:layout_marginBottom="76dp"-->
-                <!--android:clickable="true"-->
-                <!--android:visibility="visible"-->
-                <!--app:fabSize="normal"-->
-                <!--app:srcCompat="@drawable/flash" />-->
-        </LinearLayout>
-    </RelativeLayout>
 
 
 
