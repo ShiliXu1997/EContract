@@ -5,6 +5,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.example.android.ConfirmActivity;
+import com.example.android.LoginActivity;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +37,7 @@ public class HttpUtil {
 //    private static String mBaseAddress = "http://121.250.213.89:8080";
     private static String mBaseAddress = "http://47.95.214.69:1002";
     private static String mServerPublicKey = "";
+    private String token = "";
 //    private static String mServerPrivateKey = "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAOEgvboMuy7FoeDEZ5A18AQx0qSXfPVFCBXAtvOupcUWBWfX+gYziFCG8eFzxw/QWZjrpoDyjuQPOZ0qfqo3pNXbB5IzO4QP35dxH7zQYJpsfJyftu3ij4DrWec+97M72sa6gpTPUH5ng9csy2nQDhNZHFUYfk2SQ3l72O1yr1TBAgMBAAECgYBRylVjvLBcw8yWHoUJra7vtzIyPh9V9KiFTqipS7BKND/uhFb/3cUOjJhgMnIF2spSdnrdqkIjtSxXX1L5gJHPucZA3jrhsqE6F8dRgq+uAqV5KdA0O+WLVaJ1o/f3SBwDrvBB1e9L7i5wTEFFq42Z9//ENzEVVoNYjaVkhDn/gQJBAPxJozKuNyHtWhLnlSpEq8tfV9mH1wqkjIUyUjq6JqMrXnkd5oivE/UyHa55nNR8TGqqCaJ57I4E5tXDITZ5LIkCQQDkcMsbhSbEEaCNnpsD9Zr0mMQEuR7Bcu4V+FM2BoIUkydecfuvytVIKxPYDv1r3nFD+BDwgkxVoMopCt9KnQh5AkBZy2PYwAVDgBVVMTP4TWTQB+letWimkxaoudZmrKbf4KnJdgj9kUMLPIEv/n0BbBROyqKPP9IgYkI+xyrlFo/xAkEAhyApJFg4vBXpMJw2+bqYNEMBAAI4rRk8uAYxwm1LGLyKtxUZWbzTOGMy08TaJqpnuVrNOlb4rFX1/x0NQ+drkQJBAJrVKk/epJmOVu4gm7SM7/qMd9H/ZqWOxJb3kM0X3FN4EKYFuv9sRFu0mJoWUWugq1hELf89KefwCdzsIylDoP0=";
 
     public static HttpUtil getInstance() {
@@ -55,6 +59,46 @@ public class HttpUtil {
         return mServerPublicKey;
     }
 
+
+
+    public void confirm(String qrCode,String userid, String phoneId, Handler handler) {
+        String serverPublicKey = getServerPublicKey();
+        String userPrivateKey = "";
+        RequestToConfirm requestToConfirm = new RequestToConfirm(handler);
+        JSONArray requests = new JSONArray();
+        try {
+            String key = SecurityUtil.getDESKeyString();
+            String encryptedKey = SecurityUtil.encryptStringByRSAPublicKeyString(key, serverPublicKey);
+
+            JSONObject data= new JSONObject();
+            Date date = new Date();
+            String time = String.valueOf(date.getTime());
+            String signedHash = SecurityUtil.signStringByRSAPrivateKeyString(userid+ phoneId+ qrCode+ time, userPrivateKey);
+
+            data.put("user_id",userid);
+            data.put("phone_id",phoneId);
+            data.put("random_str",qrCode);
+            data.put("time",time);
+            data.put("signed_hash",signedHash);
+
+            String desData = SecurityUtil.encryptStringByDESKeyString(data.toString(), key);
+
+            JSONObject body= new JSONObject();
+            body.put("encrypted_key",encryptedKey);
+            body.put("data",desData);
+
+            JSONObject addr= new JSONObject();
+            addr.put("address",mBaseAddress + "/app/help_login");
+
+            requests.put(addr);
+            requests.put(body);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        requestToConfirm.execute(requests);
+    }
+
     public void register(String userName, String cardId, Handler handler) {
         String serverPublicKey = getServerPublicKey();
         RequestToRegister requestToRegister = new RequestToRegister(handler);
@@ -67,17 +111,19 @@ public class HttpUtil {
             String userPublicKey = userKeyPair.get("public_key");
             String userPrivateKey = userKeyPair.get("private_key");
 
+            String phoneId = "Xiaomi 9 SE";
+
             String key = SecurityUtil.getDESKeyString();
             Log.v(TAG, "随机生成的对称密钥是：" + key);
             String encryptedKey = SecurityUtil.encryptStringByRSAPublicKeyString(key, serverPublicKey);
             Log.v(TAG, "已成功使用公钥加密对称钥");
 
-            String phoneId = "Xiaomi 9 SE";
             Date date = new Date();
             String time = String.valueOf(date.getTime());
             String signedHash = SecurityUtil.signStringByRSAPrivateKeyString(userName + cardId + phoneId + userPublicKey + time, userPrivateKey);
 
             JSONObject data = new JSONObject();
+
             data.put("user_name", userName);
             data.put("card_id", cardId);
             data.put("phone_id", phoneId);
@@ -107,7 +153,7 @@ public class HttpUtil {
 
     public void login(String userId,String pin,Handler handler) {
         String serverPublicKey = getServerPublicKey();
-        System.out.println("serverPubKey:"+serverPublicKey);
+        System.out.println("登录时的服务器公钥:"+serverPublicKey);
         RequestToLogin requestToLogin = new RequestToLogin(handler);
         JSONArray requests = new JSONArray();
 
@@ -119,23 +165,27 @@ public class HttpUtil {
             String userPublicKey = userKeyPair.get("public_key");
             String userPrivateKey = userKeyPair.get("private_key");
 
+            String phoneId = "Xiaomi 9 SE";
+
             String key = SecurityUtil.getDESKeyString();
-            Log.v(TAG, "随机生成的对称密钥是：" + key);
             String encryptedKey = SecurityUtil.encryptStringByRSAPublicKeyString(key, serverPublicKey);
+
             Log.v(TAG, "已成功使用公钥加密对称钥");
 
-            String signedHash = SecurityUtil.signStringByRSAPrivateKeyString(userId, userPrivateKey);
+            String signedHash = SecurityUtil.signStringByRSAPrivateKeyString(userId+phoneId, userPrivateKey);
 
-            String phoneId = "Xiaomi 9 SE";
+            System.out.println("用户私钥:"+userPrivateKey);
+
+
             JSONObject data = new JSONObject();
             data.put("user_id", userId);
+            data.put("phone_id",phoneId);
             data.put("signed_hash", signedHash);
             String desData = SecurityUtil.encryptStringByDESKeyString(data.toString(), key);
 
             JSONObject body = new JSONObject();
             body.put("encrypted_key", encryptedKey);
             body.put("data", desData);
-
 
             JSONObject info = new JSONObject();
             info.put("private_key", userPrivateKey);
@@ -144,13 +194,20 @@ public class HttpUtil {
             requests.put(body);
             requests.put(info);
 
-            Log.v(TAG, "已构造好注册请求");
+            Log.v(TAG, "已构造好口令登录请求");
         } catch (JSONException jsonException) {
             jsonException.printStackTrace();
         }
         requestToLogin.execute(requests);
 
     }
+
+    public void getQrCode(Handler handler) {
+        RequestForQrcode requestForQrcode = new RequestForQrcode(handler);
+        requestForQrcode.execute(mBaseAddress + "/app/qrCode");
+    }
+
+
 
     private static String getStringFromInputStream(InputStream inputStream) {
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -197,8 +254,7 @@ public class HttpUtil {
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     InputStream inputStream = connection.getInputStream();
                     return getJSONObjectFromInputStream(inputStream).get("public_key_of_server").toString();
-                }
-                else
+                } else
                     return "GET the URL successfully but the public_key_of_server is wrong!";
             } catch (MalformedURLException malformedURLException) {
                 malformedURLException.printStackTrace();
@@ -212,6 +268,61 @@ public class HttpUtil {
             } catch (JSONException jsonException) {
                 jsonException.printStackTrace();
                 return "Public key of server is wrong!";
+            }
+        }
+    }
+
+    private void setToken(String token) {
+        this.token = token;
+    }
+
+    private static class RequestForQrcode extends AsyncTask<String, Integer, String> {
+
+        private Handler mHander;
+
+        public RequestForQrcode(Handler handler) {
+            this.mHander = handler;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                URL url = new URL(strings[0]);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setReadTimeout(5000);
+                connection.setDoInput(true);
+                connection.setUseCaches(false);
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    String qrCode;
+                    InputStream inputStream = connection.getInputStream();
+                    qrCode = getJSONObjectFromInputStream(inputStream).get("qr_code").toString();
+
+                    Message message = mHander.obtainMessage();
+                    message.what = LoginActivity.GET_QR_CODE_SUCCESS;
+                    message.obj = qrCode;
+
+                    return qrCode;
+                }
+                else
+                    return "GET the URL successfully but the qr_code is wrong!";
+            } catch (MalformedURLException malformedURLException) {
+                malformedURLException.printStackTrace();
+                return "URL is wrong!";
+            } catch (ProtocolException protocolException) {
+                protocolException.printStackTrace();
+                return "Property setting is wrong!";
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+                return "Input is wrong!";
+            } catch (JSONException jsonException) {
+                jsonException.printStackTrace();
+                return "Public qr_code of server is wrong!";
             }
         }
 
@@ -235,7 +346,6 @@ public class HttpUtil {
         protected  void onPreExecute() {
             super.onPreExecute();
         }
-
 
 
         @Override
@@ -294,6 +404,7 @@ public class HttpUtil {
                                 mesObj.put("token", token);
                                 mesObj.put("error", null);
                                 Log.v(TAG, "获取到的token：" + token);
+                                getInstance().setToken(token);
                             } else {
                                 mesObj.put("error", "Got malicious message!");
                             }
@@ -430,6 +541,75 @@ public class HttpUtil {
         protected void onPostExecute(JSONObject response) {
             super.onPostExecute(response);
             Log.v(TAG, "申请注册已结束");
+        }
+    }
+
+    private class RequestToConfirm extends AsyncTask<JSONArray,Integer,String> {
+
+        private Handler mHandler;
+
+        public RequestToConfirm(Handler handler) {
+            this.mHandler= handler;
+        }
+
+
+        @Override
+        protected String doInBackground(JSONArray... jsonArrays) {
+            try {
+                JSONObject addr = jsonArrays[0].getJSONObject(0);
+                JSONObject body = jsonArrays[0].getJSONObject(1);
+                String address = (String) addr.get("address");
+
+                URL url = new URL(address);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setReadTimeout(5000);
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+                connection.setUseCaches(false);
+                connection.setRequestProperty("Content-type", "application/x-java-serialized-object");
+
+                PrintStream printStream = new PrintStream(connection.getOutputStream());
+                printStream.print(body.toString());
+                printStream.flush();
+                printStream.close();
+
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    Log.v(TAG, "响应码为200");
+                    InputStream inputStream = connection.getInputStream();
+                    Message message = mHandler.obtainMessage();
+                    Log.v(TAG, "已获取响应的输入流");
+                    JSONObject response = getJSONObjectFromInputStream(inputStream);
+
+                    int statusCode = (int) response.get("status_code");
+
+                    JSONObject mesObj = new JSONObject();
+                    switch (statusCode) {
+                        case 200:
+                            message.what = ConfirmActivity.CONFIRM_SUCCESS;
+                            break;
+                        case 400:
+                            message.what = ConfirmActivity.CONFIRM_FAIL;
+                            break;
+                        default:
+                            break;
+                    }
+                    message.sendToTarget();
+                }
+                else {
+                    System.out.println("POST to confirm failed!");
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
     }
 }

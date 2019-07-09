@@ -189,33 +189,11 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
                     System.out.println("二维码:"+result.getText().toString());
                     Bundle _data=new Bundle();
                     _data.putString("qr_code",result.getText().toString());
-                    Intent intent = new Intent(CaptureActivity.this, com.example.android.confirm_ndevActivity.class);
+                    Intent intent = new Intent(CaptureActivity.this, com.example.android.ConfirmActivity.class);
                     //创建了一个从MainActivity跳转到Main2Activity的Intent
                     intent.putExtras(data);
                     //将存储了数据的Bundle对象put进Intent里面
                     startActivity(intent);
-//                    //对话框
-//                    AlertDialog dialog = new AlertDialog.Builder(this)
-//                            .setTitle("扫描结果：")//设置对话框的标题
-//                            .setMessage(result.getText().toString())//设置对话框的内容
-//                            //设置对话框的按钮
-//                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                    dialog.dismiss();
-//                                    finish();
-//                                }
-//                            })
-//                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                    dialog.dismiss();
-//                                    finish();
-//                                }
-//                            }).create();
-//                    dialog.setCanceledOnTouchOutside(false);//点击其他地方对话框不消失
-//                    dialog.show();
-//                    break;
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -313,34 +291,12 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
             System.out.println("二维码:"+resultString);
             Bundle data=new Bundle();
             data.putString("qr_code",resultString);
-            Intent intent = new Intent(CaptureActivity.this, com.example.android.confirm_ndevActivity.class);
+            Intent intent = new Intent(CaptureActivity.this, com.example.android.ConfirmActivity.class);
             //创建了一个从MainActivity跳转到Main2Activity的Intent
             intent.putExtras(data);
             //将存储了数据的Bundle对象put进Intent里面
             startActivity(intent);
 
-
-//                //对话框
-//            AlertDialog dialog = new AlertDialog.Builder(this)
-//                    .setTitle("扫描结果：")//设置对话框的标题
-//                    .setMessage(resultString)//设置对话框的内容
-//                    //设置对话框的按钮
-//                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.dismiss();
-//                            finish();
-//                        }
-//                    })
-//                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.dismiss();
-//                            finish();
-//                        }
-//                    }).create();
-//            dialog.setCanceledOnTouchOutside(false);//点击其他地方对话框不消失
-//            dialog.show();
 
         }
 
