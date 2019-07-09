@@ -7,6 +7,8 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -26,6 +28,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
 public class SecurityUtil {
+
     public static String hashBySHA1(String str) {
         final char[] HEX_DIGITS = "0123456789abcdef".toCharArray();
         StringBuilder stringBuilder = new StringBuilder();
@@ -63,7 +66,7 @@ public class SecurityUtil {
         try {
             DESKeySpec desKeySpec = new DESKeySpec(base64Decode(keyString));
             SecretKey secretKey = SecretKeyFactory.getInstance("DES").generateSecret(desKeySpec);
-            Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance("DES");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
             byte[] strBytes = str.getBytes();
@@ -131,7 +134,7 @@ public class SecurityUtil {
         try {
             byte[] keyBytes = base64Decode(keyString);
             RSAPublicKey key = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(keyBytes));
-            Cipher cipher = Cipher.getInstance("RSA");
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, key);
 
             byte[] strBytes = str.getBytes("UTF-8");
@@ -159,7 +162,7 @@ public class SecurityUtil {
         try {
             byte[] keyBytes = base64Decode(keyString);
             RSAPrivateKey key = (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
-            Cipher cipher = Cipher.getInstance("RSA");
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.DECRYPT_MODE, key);
 
             byte[] strBytes = base64Decode(str);
@@ -168,64 +171,56 @@ public class SecurityUtil {
             noSuchAlgorithmException.printStackTrace();
         } catch (InvalidKeySpecException invalidKeySpecException) {
             invalidKeySpecException.printStackTrace();
-        } catch (NoSuchPaddingException noSuchPaddingException) {
-            noSuchPaddingException.printStackTrace();
         } catch (InvalidKeyException invalidKeyException) {
             invalidKeyException.printStackTrace();
-        } catch (BadPaddingException badPaddingException) {
-            badPaddingException.printStackTrace();
         } catch (IllegalBlockSizeException illegalBlockSizeException) {
             illegalBlockSizeException.printStackTrace();
+        } catch (BadPaddingException badPaddingException) {
+            badPaddingException.printStackTrace();
+        } catch (NoSuchPaddingException noSuchPaddingException) {
+            noSuchPaddingException.printStackTrace();
         }
         return ans;
     }
 
-    public static String encryptStringByRSAPrivateKeyString(String str, String keyString) {
+    public static String signStringByRSAPrivateKeyString(String str, String keyString) {
         String ans = "";
         try {
             byte[] keyBytes = base64Decode(keyString);
             RSAPrivateKey key = (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            ans = base64Encode(cipher.doFinal(str.getBytes()));
+            Signature signature = Signature.getInstance("SHA1WithRSA");
+            signature.initSign(key);
+            signature.update(str.getBytes());
+            ans = base64Encode(signature.sign());
         } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
             noSuchAlgorithmException.printStackTrace();
         } catch (InvalidKeySpecException invalidKeySpecException) {
             invalidKeySpecException.printStackTrace();
-        } catch (NoSuchPaddingException noSuchPaddingException) {
-            noSuchPaddingException.printStackTrace();
         } catch (InvalidKeyException invalidKeyException) {
             invalidKeyException.printStackTrace();
-        } catch (BadPaddingException badPaddingException) {
-            badPaddingException.printStackTrace();
-        } catch (IllegalBlockSizeException illegalBlockSizeException) {
-            illegalBlockSizeException.printStackTrace();
+        } catch (SignatureException signatureException) {
+            signatureException.printStackTrace();
         }
         return ans;
     }
 
-    public static String decryptStringByRSAPublicKeyString(String str, String keyString) {
-        String ans = "";
+    public static boolean verifyStringByRSAPublicKeyString(String str, String signedHash, String keyString) {
+        boolean ans = false;
         try {
             byte[] keyBytes = base64Decode(keyString);
             RSAPublicKey key = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(keyBytes));
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.DECRYPT_MODE, key);
-
-            byte[] strBytes = base64Decode(str);
-            ans = new String(cipher.doFinal(strBytes));
+            Signature signature = Signature.getInstance("SHA1WithRSA");
+            signature.initVerify(key);
+            signature.update(str.getBytes());
+            ans = signature.verify(base64Decode(signedHash));
         } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
             noSuchAlgorithmException.printStackTrace();
         } catch (InvalidKeySpecException invalidKeySpecException) {
             invalidKeySpecException.printStackTrace();
-        } catch (NoSuchPaddingException noSuchPaddingException) {
-            noSuchPaddingException.printStackTrace();
         } catch (InvalidKeyException invalidKeyException) {
             invalidKeyException.printStackTrace();
-        } catch (BadPaddingException badPaddingException) {
-            badPaddingException.printStackTrace();
-        } catch (IllegalBlockSizeException illegalBlockSizeException) {
-            illegalBlockSizeException.printStackTrace();
+        } catch (SignatureException signatureException) {
+            signatureException.printStackTrace();
         }
         return ans;
     }

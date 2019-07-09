@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.InputType;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -16,6 +17,8 @@ import androidx.appcompat.app.ActionBar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import static android.content.ContentValues.TAG;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -50,6 +53,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         setListener();
 
+        Log.v(TAG, "准备构造句柄");
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message message) {
@@ -77,6 +81,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }
         };
+        Log.v(TAG, "准备获取公钥");
         HttpUtil.initServerPublicKey();
     }
 

@@ -7,9 +7,6 @@
     <string name="register_pin">设置口令</string>
     <string name="register_request">申请注册</string>
 
-    <string name="login_tittle">登录</string>
-    <string name="login_userId">用户账号</string>
-    <string name="login_pin">口令</string>
 
     <string name="register_beforeRegister_hint">
         您的本次注册需要提供您的真实姓名与身份证号，待管理员对您的信息审核通过后，您将得到只属于您的用户ID，请务必记住！
@@ -24,6 +21,19 @@
     <string name="register_fail_hint">
         您的本次提交注册因为某种原因没有成功，请重新填写信息再次尝试！
     </string>
+
+    <string name="login_tittle">登录</string>
+    <string name="login_hint">
+        如果您是在本台设备注册的用户账号，或者已经在本台设备进行过登录，请选择口令登录。
+        如果是在其他设备注册的用户账号，且是第一次登录本台设备，那么请选择二维码登录，让已登录的设备对本设备进行扫码验证。
+    </string>
+
+    <string name="qrcode_login_tittle">二维码登录</string>
+    <string name="qrcode_login_userId">用户账号</string>
+
+    <string name="pincode_login_tittle">口令登录</string>
+    <string name="pincode_login_userId">用户账号</string>
+    <string name="pincode_login_pin">口令</string>
 
     <string name="failToLogin_tittle">登录失败</string>
     <string name="failToLogin_hint">
