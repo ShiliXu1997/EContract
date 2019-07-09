@@ -29,17 +29,6 @@ import javax.crypto.spec.DESKeySpec;
 
 public class SecurityUtil {
 
-    public static String hashBySHA1(String str) {
-        final char[] HEX_DIGITS = "0123456789abcdef".toCharArray();
-        StringBuilder stringBuilder = new StringBuilder();
-        byte[] strBytes = str.getBytes();
-        for (byte b:strBytes) {
-            stringBuilder.append(HEX_DIGITS[(b >>> 4) & 0x0f]);
-            stringBuilder.append(HEX_DIGITS[b & 0x0f]);
-        }
-        return stringBuilder.toString();
-    }
-
     public static String base64Encode(byte[] bytes) {
         return Base64.getEncoder().encodeToString(bytes);
     }
