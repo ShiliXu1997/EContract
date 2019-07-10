@@ -22,8 +22,6 @@ public class MainActivity extends Activity {
         mRegisterButton = findViewById(R.id.register_button);
         mLoginButton = findViewById(R.id.login_button);
 
-        String SerialNumber = android.os.Build.SERIAL;
-        mHelloText.setText(SerialNumber);
         setListener();
 
     }

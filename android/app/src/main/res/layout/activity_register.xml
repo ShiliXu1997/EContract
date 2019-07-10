@@ -10,7 +10,6 @@
         android:layout_width="350dp"
         android:layout_height="150dp"
         android:layout_marginTop="@dimen/register_hint_marginTop"
-        android:layout_marginBottom="@dimen/register_hint_marginBottom"
         android:layout_gravity="center"
         android:text="@string/register_beforeRegister_hint" />
 

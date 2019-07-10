@@ -1,5 +1,6 @@
 package com.example.android;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -72,10 +74,17 @@ public class RegisterActivity extends AppCompatActivity {
                             String successString = getString(com.example.android.R.string.register_waitForApprove_hint);
                             successString = String.format(successString, userId);
                             mHintTextView.setText(successString);
+                            mUserNameEdit.setVisibility(EditText.INVISIBLE);
+                            mCardIdEdit.setVisibility(EditText.INVISIBLE);
+                            mPinEdit.setVisibility(EditText.INVISIBLE);
+                            mRegisterButton.setText("去登录");
+
                             break;
                         case MESSAGE_REGISTER_FAIL_RESPONSE:
                             String failString = getString(com.example.android.R.string.register_fail_hint);
                             mHintTextView.setText(failString);
+                            Toast.makeText(RegisterActivity.this, "服务器出错了,请稍后再试", Toast.LENGTH_LONG).show();
+
                             break;
                         default:
                             break;
@@ -112,12 +121,19 @@ public class RegisterActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch(v.getId()) {
                 case com.example.android.R.id.register_button:
-                    String userName = mUserNameEdit.getText().toString();
-                    String cardId = mCardIdEdit.getText().toString();
-                    String pinCode = mPinEdit.getText().toString();
+                    if(mRegisterButton.getText().toString().equals("申请注册")) {
+                        String userName = mUserNameEdit.getText().toString();
+                        String cardId = mCardIdEdit.getText().toString();
+                        String pinCode = mPinEdit.getText().toString();
 
-                    HttpUtil httpUtil = HttpUtil.getInstance();
-                    httpUtil.register(userName, cardId, pinCode, mHandler);
+                        HttpUtil httpUtil = HttpUtil.getInstance();
+                        httpUtil.register(userName, cardId, pinCode, mHandler);
+                    } else if(mRegisterButton.getText().toString().equals("去登录")){
+                        //已经点击过注册按钮并且成功发送至后台,此时点击去登录
+                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+
                     break;
                 default:
                     break;

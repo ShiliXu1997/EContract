@@ -10,6 +10,7 @@ import com.example.android.ConfirmActivity;
 import com.example.android.LoginActivity;
 import com.example.android.QrPinActivity;
 import com.example.android.RegisterActivity;
+import com.example.android.WebsignActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +41,11 @@ public class HttpUtil {
     private String mPhoneId = "";
     private String mUserPrivateKey = "";
     private String mToken = "";
+
+    public HttpUtil() {
+        this.mPhoneId = android.os.Build.SERIAL;
+//        this.mPhoneId = "Xiaomi 9 SE";
+    }
 
     public static HttpUtil getInstance() {
         return mHttpUtil;
@@ -80,7 +86,7 @@ public class HttpUtil {
             Log.v(TAG, "用户生成的公钥是：" + userPublicKey);
             Log.v(TAG, "用户生成的私钥是：" + userPrivateKey);
 
-            String phoneId = "Xiaomi 9 SE";
+            String phoneId = HttpUtil.getInstance().mPhoneId;
 
             String key = SecurityUtil.getDESKeyString();
             Log.v(TAG, "随机生成的对称密钥是：" + key);
@@ -133,7 +139,7 @@ public class HttpUtil {
             getInstance().setUserId(userId);
             getInstance().initUserPrivateKey(pinCode);
 
-            String phoneId = "Xiaomi 9 SE";
+            String phoneId = HttpUtil.getInstance().mPhoneId;
 
             String key = SecurityUtil.getDESKeyString();
             String encryptedKey = SecurityUtil.encryptStringByRSAPublicKeyString(key, serverPublicKey);
@@ -166,8 +172,25 @@ public class HttpUtil {
         requestForQrcode.execute(mBaseAddress + "/api/auth/code");
     }
 
+    public void getUserIdByTokenToLogin(String token, Handler handler) {
+        //先保存token
+        HttpUtil.getInstance().setToken(token);
+
+        //请求userId
+        RequestForUserIdByToken requestForUserIdByToken = new RequestForUserIdByToken(handler);
+        String url = mBaseAddress + "/app/get_userid?token="+token;
+        System.out.println("请求userid的url:"+url);
+
+        requestForUserIdByToken.execute(url);
+    }
+
     public void qrLogin(String userId, String pinCode, Handler handler) {
+
         String serverPublicKey = getServerPublicKey();
+
+        System.out.println("扫码提交时得到的公钥:"+serverPublicKey);
+
+
         RequestToQrLogin requestToQrLogin = new RequestToQrLogin(handler);
         JSONArray requests = new JSONArray();
         try {
@@ -182,7 +205,7 @@ public class HttpUtil {
             Log.v(TAG, "用户生成的公钥是：" + userPublicKey);
             Log.v(TAG, "用户生成的私钥是：" + userPrivateKey);
 
-            String phoneId = "Xiaomi 9 SE";
+            String phoneId = HttpUtil.getInstance().mPhoneId;
 
             String key = SecurityUtil.getDESKeyString();
             Log.v(TAG, "随机生成的对称密钥是：" + key);
@@ -203,20 +226,25 @@ public class HttpUtil {
             data.put("hash", signedHash);
             String desData = SecurityUtil.encryptStringByDESKeyString(data.toString(), key);
 
+
+            System.out.println("明文data:"+data);
+
+
             JSONObject body = new JSONObject();
             body.put("encrypted_key", encryptedKey);
             body.put("data", desData);
 
             JSONObject info = new JSONObject();
             info.put("private_key", userPrivateKey);
-            info.put("pin_code", pinCode);
+            info.put("pinCode", pinCode);
             info.put("userId",userId);
+
 
             requests.put(address);
             requests.put(body);
             requests.put(info);
 
-            Log.v(TAG, "正准备向后台发送注册请求包");
+            Log.v(TAG, "正准备向后台发送新设备授权请求包");
         } catch (JSONException jsonException) {
             jsonException.printStackTrace();
         }
@@ -225,7 +253,6 @@ public class HttpUtil {
 
     public void confirm(String qrCode,Handler handler) {
         String serverPublicKey = getServerPublicKey();
-        String userPrivateKey = "";
         RequestToConfirm requestToConfirm = new RequestToConfirm(handler);
         JSONArray requests = new JSONArray();
         try {
@@ -236,7 +263,7 @@ public class HttpUtil {
             Date date = new Date();
             String time = String.valueOf(date.getTime());
 
-            String signedHash = SecurityUtil.signStringByRSAPrivateKeyString(time + mUserId  + mPhoneId + qrCode , userPrivateKey);
+            String signedHash = SecurityUtil.signStringByRSAPrivateKeyString(time + mUserId  + mPhoneId + qrCode , mUserPrivateKey);
 
             data.put("time", time);
             data.put("user_id", mUserId);
@@ -260,6 +287,41 @@ public class HttpUtil {
             e.printStackTrace();
         }
         requestToConfirm.execute(requests);
+    }
+
+    public void websign(String qrCode,Handler handler) {
+        String serverPublicKey = getServerPublicKey();
+        RequestToWebsign requestToWebsign = new RequestToWebsign(handler);
+        JSONArray requests = new JSONArray();
+        try {
+            String key = SecurityUtil.getDESKeyString();
+            String encryptedKey = SecurityUtil.encryptStringByRSAPublicKeyString(key, serverPublicKey);
+            //此处只签名合同的hash值,即qrCode
+            String signedHash = SecurityUtil.signStringByRSAPrivateKeyString(qrCode , mUserPrivateKey);
+
+
+            JSONObject data= new JSONObject();
+            data.put("user_id", mUserId);
+            data.put("phone_id", mPhoneId);
+            data.put("hash", qrCode);
+            data.put("signed_hash", signedHash);
+
+            String desData = SecurityUtil.encryptStringByDESKeyString(data.toString(), key);
+
+            JSONObject body = new JSONObject();
+            body.put("encrypted_key",encryptedKey);
+            body.put("data",desData);
+
+            JSONObject addr = new JSONObject();
+            addr.put("address",mBaseAddress + "/app/scanContractSignCode?token="+mToken);
+
+            requests.put(addr);
+            requests.put(body);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        requestToWebsign.execute(requests);
     }
 
     private static String getStringFromInputStream(InputStream inputStream) {
@@ -367,6 +429,8 @@ public class HttpUtil {
 
         @Override
         protected JSONObject doInBackground(JSONArray... requests) {
+
+            Message message = mHandler.obtainMessage();
             try {
                 JSONObject address = requests[0].getJSONObject(0);
                 JSONObject body = requests[0].getJSONObject(1);
@@ -394,7 +458,6 @@ public class HttpUtil {
                     Log.v(TAG, "响应码为200");
                     InputStream inputStream = connection.getInputStream();
                     Log.v(TAG, "已获取响应的输入流");
-                    Message message = mHandler.obtainMessage();
                     JSONObject response = getJSONObjectFromInputStream(inputStream);
                     String encryptedKey = (String) response.get("encrypted_key");
                     Log.v(TAG,"加密过得des密文:"+encryptedKey);
@@ -448,11 +511,17 @@ public class HttpUtil {
                     System.out.println("POST to register failed!");
                 }
             } catch (MalformedURLException malformedUrlException) {
+                message.what = RegisterActivity.MESSAGE_REGISTER_FAIL_RESPONSE;
+                message.sendToTarget();
                 malformedUrlException.printStackTrace();
             } catch (JSONException jsonException) {
+                message.what = RegisterActivity.MESSAGE_REGISTER_FAIL_RESPONSE;
+                message.sendToTarget();
                 jsonException.printStackTrace();
             } catch (IOException ioException) {
-               ioException.printStackTrace();
+                message.what = RegisterActivity.MESSAGE_REGISTER_FAIL_RESPONSE;
+                message.sendToTarget();
+                ioException.printStackTrace();
             }
 
             // 直接返回一个空JSONObject，如果需要结束后做什么事，可以在这里扩展
@@ -482,6 +551,8 @@ public class HttpUtil {
 
         @Override
         protected JSONObject doInBackground(JSONArray... requests) {
+            Message message = mhandler.obtainMessage();
+
             try {
                 JSONObject address = requests[0].getJSONObject(0);
                 JSONObject body = requests[0].getJSONObject(1);
@@ -502,26 +573,24 @@ public class HttpUtil {
                 printStream.close();
 
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    Log.v(TAG, "响应码为200");
                     InputStream inputStream = connection.getInputStream();
-                    Log.v(TAG, "已获取响应的输入流");
-                    Message message = mhandler.obtainMessage();
                     JSONObject response = getJSONObjectFromInputStream(inputStream);
-                    String encryptedKey = (String) response.get("encrypted_key");
 
-                    Log.v(TAG, "登录前拿到的私钥是：" + HttpUtil.getInstance().getUserPrivateKey());
-                    Log.v(TAG, "加密过得des的密文是：" + encryptedKey);
+                    Log.v(TAG, "已获取响应的输入流");
+                    System.out.println("pin码登录得到后台的响应为:"+response.toString());
 
-                    String key = SecurityUtil.decryptStringByRSAPrivateKeyString(encryptedKey, HttpUtil.getInstance().getUserPrivateKey());
 
-                    Log.v(TAG, encryptedKey);
-                    Log.v(TAG, key);
+                    JSONObject mesObj = new JSONObject();
 
                     int statusCode = (int) response.get("status_code");
-                    JSONObject mesObj = new JSONObject();
                     switch (statusCode) {
                         case 200:
-                            message.what = LoginActivity.MESSAGE_PINLOGIN_SUCCESS_RESPONSE;
+                            String encryptedKey = (String) response.get("encrypted_key");
+                            String key = SecurityUtil.decryptStringByRSAPrivateKeyString(encryptedKey, HttpUtil.getInstance().getUserPrivateKey());
+
+                            Log.v(TAG, encryptedKey);
+                            Log.v(TAG, key);
+
 
                             String desData = (String) response.get("data");
                             JSONObject data = new JSONObject(SecurityUtil.decryptStringByDESKeyString(desData, key));
@@ -530,12 +599,15 @@ public class HttpUtil {
 
                             if (SecurityUtil.verifyStringByRSAPublicKeyString(token, signedHash, HttpUtil.getServerPublicKey())) {
                                 Log.v(TAG, "服务器的响应验签通过");
+
+                                message.what = LoginActivity.MESSAGE_PINLOGIN_SUCCESS_RESPONSE;
                                 mesObj.put("token", token);
                                 mesObj.put("error", null);
 
                                 HttpUtil.getInstance().setToken(token);
                                 Log.v(TAG, "获取到的token：" + token);
                             } else {
+                                message.what = LoginActivity.MESSAGE_PINLOGIN_FAIL_RESPONSE;
                                 mesObj.put("error", "Got malicious message!");
                             }
                             message.obj = mesObj;
@@ -553,15 +625,25 @@ public class HttpUtil {
                     message.sendToTarget();
                 }
                 else {
+                    message.what = LoginActivity.MESSAGE_PINLOGIN_FAIL_RESPONSE;
+                    message.sendToTarget();
                     System.out.println("POST to register failed!");
                 }
             } catch (JSONException e) {
+                message.what = LoginActivity.MESSAGE_PINLOGIN_FAIL_RESPONSE;
+                message.sendToTarget();
                 e.printStackTrace();
             } catch (MalformedURLException e) {
+                message.what = LoginActivity.MESSAGE_PINLOGIN_FAIL_RESPONSE;
+                message.sendToTarget();
                 e.printStackTrace();
             } catch (ProtocolException e) {
+                message.what = LoginActivity.MESSAGE_PINLOGIN_FAIL_RESPONSE;
+                message.sendToTarget();
                 e.printStackTrace();
             } catch (IOException e) {
+                message.what = LoginActivity.MESSAGE_PINLOGIN_FAIL_RESPONSE;
+                message.sendToTarget();
                 e.printStackTrace();
             }
 
@@ -579,10 +661,10 @@ public class HttpUtil {
 
     private static class RequestForQrcode extends AsyncTask<String, Integer, String> {
 
-        private Handler mHander;
+        private Handler mHandler;
 
         public RequestForQrcode(Handler handler) {
-            this.mHander = handler;
+            this.mHandler = handler;
         }
 
         @Override
@@ -593,6 +675,7 @@ public class HttpUtil {
         @Override
         protected String doInBackground(String... strings) {
             String qrCode = "";
+            Message message = mHandler.obtainMessage();
             try {
                 URL url = new URL(strings[0]);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -606,10 +689,71 @@ public class HttpUtil {
                     JSONObject response = getJSONObjectFromInputStream(inputStream);
                     qrCode = (String) response.get("data");
 
-                    Message message = mHander.obtainMessage();
                     message.what = LoginActivity.GET_QR_CODE_SUCCESS;
                     message.obj = qrCode;
                     message.sendToTarget();
+                }
+                else {
+                    message.what = LoginActivity.GET_QR_CODE_FAIL;
+                    message.sendToTarget();
+                    return "GET the URL successfully but the qr_code is wrong!";
+                }
+            } catch (MalformedURLException malformedURLException) {
+                malformedURLException.printStackTrace();
+                message.what = LoginActivity.GET_QR_CODE_FAIL;
+                message.sendToTarget();
+                return "URL is wrong!";
+            } catch (ProtocolException protocolException) {
+                protocolException.printStackTrace();
+                message.what = LoginActivity.GET_QR_CODE_FAIL;
+                message.sendToTarget();
+                return "Property setting is wrong!";
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+                message.what = LoginActivity.GET_QR_CODE_FAIL;
+                message.sendToTarget();
+                return "Input is wrong!";
+            } catch (JSONException jsonException) {
+                jsonException.printStackTrace();
+                message.what = LoginActivity.GET_QR_CODE_FAIL;
+                message.sendToTarget();
+                return "Public qr_code of server is wrong!";
+            }
+            return qrCode;
+        }
+    }
+
+    private static class RequestForUserIdByToken extends AsyncTask<String , Integer , String> {
+        private Handler mHandler;
+
+        public RequestForUserIdByToken(Handler handler) {
+            this.mHandler = handler;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String userId = "";
+            try {
+                URL url = new URL(strings[0]);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setReadTimeout(5000);
+                connection.setDoInput(true);
+                connection.setUseCaches(false);
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = connection.getInputStream();
+
+                    JSONObject response = getJSONObjectFromInputStream(inputStream);
+                    userId = (String) response.get("user_id");
+
+                    //保存userId
+                    HttpUtil.getInstance().setUserId(userId);
+
+                    Message message = mHandler.obtainMessage();
+                    message.what = LoginActivity.GET_USERID_SUCCESS;
+                    message.obj = userId;
+                    message.sendToTarget();
+
                 }
                 else
                     return "GET the URL successfully but the qr_code is wrong!";
@@ -626,7 +770,7 @@ public class HttpUtil {
                 jsonException.printStackTrace();
                 return "Public qr_code of server is wrong!";
             }
-            return qrCode;
+            return userId;
         }
     }
 
@@ -659,6 +803,9 @@ public class HttpUtil {
                 printStream.flush();
                 printStream.close();
 
+                System.out.println("扫码模块向后台发送的url:"+address);
+                System.out.println("扫码模块向后台发送的内容:"+body.toString());
+
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     Log.v(TAG, "响应码为200");
                     InputStream inputStream = connection.getInputStream();
@@ -668,7 +815,6 @@ public class HttpUtil {
 
                     int statusCode = (int) response.get("status_code");
 
-                    JSONObject mesObj = new JSONObject();
                     switch (statusCode) {
                         case 200:
                             message.what = ConfirmActivity.CONFIRM_SUCCESS;
@@ -709,14 +855,15 @@ public class HttpUtil {
 
         @Override
         protected JSONObject doInBackground(JSONArray... requests) {
+            Message message = mHandler.obtainMessage();
             try {
                 JSONObject address = requests[0].getJSONObject(0);
                 JSONObject body = requests[0].getJSONObject(1);
                 JSONObject info = requests[0].getJSONObject(2);
 
                 String userPrivateKey = (String) info.get("private_key");
-                String pinCode = (String) info.get("pin_code");
-                String userId = (String) info.get("Userid");
+                String pinCode = (String) info.get("pinCode");
+                String userId = (String) info.get("userId");
 
                 URL url = new URL((String) address.get("address"));
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -742,7 +889,6 @@ public class HttpUtil {
                     Log.v(TAG,"得到后台的响应:"+response.toString());
 
                     int status_code = (int) response.get("status_code");
-                    String token = (String) response.get("token");
                     if(status_code == 200) {
                         Log.v(TAG, "qr登录成功");
 
@@ -752,29 +898,118 @@ public class HttpUtil {
                         FileUtil.writeFile(userId, ekey);
 
                         //保存userId和token
-                        HttpUtil.getInstance().setToken(token);
                         HttpUtil.getInstance().setUserId(userId);
 
                         //消息回调
-                        Message message = mHandler.obtainMessage();
                         message.what = QrPinActivity.QR_LOGIN_SUCCESS;
                         message.sendToTarget();
 
                     }
                 } else {
+                    message.what = QrPinActivity.QR_LOGIN_FAIL;
+                    message.sendToTarget();
                     System.out.println("POST to register failed!");
                 }
             } catch (MalformedURLException malformedUrlException) {
+                message.what = QrPinActivity.QR_LOGIN_FAIL;
+                message.sendToTarget();
                 malformedUrlException.printStackTrace();
             } catch (JSONException jsonException) {
+                message.what = QrPinActivity.QR_LOGIN_FAIL;
+                message.sendToTarget();
                 jsonException.printStackTrace();
             } catch (IOException ioException) {
+                message.what = QrPinActivity.QR_LOGIN_FAIL;
+                message.sendToTarget();
                 ioException.printStackTrace();
             }
 
             // 直接返回一个空JSONObject，如果需要结束后做什么事，可以在这里扩展
             JSONObject result = new JSONObject();
             return result;
+        }
+    }
+
+    private class RequestToWebsign extends AsyncTask<JSONArray, Integer, String> {
+
+        private Handler mHandler;
+
+        public RequestToWebsign(Handler handler) {
+            this.mHandler= handler;
+        }
+
+        @Override
+        protected String doInBackground(JSONArray... jsonArrays) {
+
+            try {
+                JSONObject addr = jsonArrays[0].getJSONObject(0);
+                JSONObject body = jsonArrays[0].getJSONObject(1);
+                String address = (String) addr.get("address");
+
+                URL url = new URL(address);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setReadTimeout(5000);
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+                connection.setUseCaches(false);
+                connection.setRequestProperty("Content-type", "application/x-java-serialized-object");
+
+                PrintStream printStream = new PrintStream(connection.getOutputStream());
+                printStream.print(body.toString());
+                printStream.flush();
+                printStream.close();
+
+                System.out.println("扫码模块向后台发送的url:"+address);
+                System.out.println("扫码模块向后台发送的内容:"+body.toString());
+
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    Log.v(TAG, "响应码为200");
+                    InputStream inputStream = connection.getInputStream();
+                    Log.v(TAG, "已获取响应的输入流");
+                    JSONObject response = getJSONObjectFromInputStream(inputStream);
+
+                    int statusCode = (int) response.get("status_code");
+
+                    Message message = mHandler.obtainMessage();
+                    switch (statusCode) {
+                        case 200:
+                            message.what = WebsignActivity.SIGN_SUCCESS;
+                            break;
+                        case 400:
+                            message.what = WebsignActivity.SIGN_FAIL;
+                            break;
+                        default:
+                            break;
+                    }
+                    message.sendToTarget();
+                }
+                else {
+                    sendFailMessage();
+                    System.out.println("POST to confirm failed!");
+                }
+            } catch (JSONException e) {
+                sendFailMessage();
+                e.printStackTrace();
+            } catch (ProtocolException e) {
+                sendFailMessage();
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                sendFailMessage();
+                e.printStackTrace();
+            } catch (IOException e) {
+                sendFailMessage();
+                e.printStackTrace();
+            }
+
+            // 直接返回一个空字符串，如果需要结束后做什么事，可以在这里扩展
+            return "";
+        }
+
+        private void sendFailMessage() {
+            Message message = mHandler.obtainMessage();
+            message.what = WebsignActivity.SIGN_FAIL;
+            message.sendToTarget();
         }
     }
 }

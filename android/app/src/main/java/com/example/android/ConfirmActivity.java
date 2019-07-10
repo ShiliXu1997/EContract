@@ -30,7 +30,7 @@ public class ConfirmActivity extends Activity {
 
         //拿到扫描的二维码的内容
         Bundle receive = getIntent().getExtras();
-        qrCode = receive.getString("qr_code");
+        qrCode = receive.getString("qrCode");
 
         Log.v(TAG, "成功得到二维码:"+qrCode);
 
@@ -79,10 +79,10 @@ public class ConfirmActivity extends Activity {
             switch (v.getId()) {
                 case R.id.confirm_login_button:
                     authorization(qrCode);
-                    intent = new Intent(ConfirmActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent = new Intent(ConfirmActivity.this, UserPageActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     break;
                 case R.id.cancel_button:
-                    intent = new Intent(ConfirmActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent = new Intent(ConfirmActivity.this, UserPageActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     break;
             }
             startActivity(intent);
