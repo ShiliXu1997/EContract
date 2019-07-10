@@ -47,8 +47,7 @@ public class FileUtil {
             byte[] bytes = new byte[fileInputStream.available()];
             fileInputStream.read(bytes);
             content = new String(bytes);
-            Log.v(TAG, "从已有的文件" + file.toString() + "读取到的内容是：");
-            Log.v(TAG, content);
+            Log.v(TAG, "从已有的文件读取到的内容是：" + content);
         } catch (FileNotFoundException fileNotFoundException) {
             fileNotFoundException.printStackTrace();
         } catch (IOException ioException) {
@@ -81,7 +80,7 @@ public class FileUtil {
                 fileOutputStream.write(content.getBytes());
                 fileOutputStream.flush();
             }
-            Log.v(TAG, "将这个内容写入文件：" + content);
+            Log.v(TAG, "已将如下内容写入文件：" + content);
         } catch (FileNotFoundException fileNotFoundException) {
             fileNotFoundException.printStackTrace();
         } catch (IOException ioException) {

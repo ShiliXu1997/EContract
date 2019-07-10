@@ -54,6 +54,14 @@ public class HttpUtil {
         return mServerPublicKey;
     }
 
+    public String getUserId() {
+        return mUserId;
+    }
+
+    public String getUserPrivateKey() {
+        return mUserPrivateKey;
+    }
+
     public void register(String userName, String cardId, String pinCode, Handler handler) {
         String serverPublicKey = getServerPublicKey();
         RequestToRegister requestToRegister = new RequestToRegister(handler);
@@ -155,9 +163,9 @@ public class HttpUtil {
         requestForQrcode.execute(mBaseAddress + "/hi/auth_code");
     }
 
-    public void qrLogin(String userId, String pinCode, Handler handler) {
-
-    }
+//    public void qrLogin(String userId, String pinCode, Handler handler) {
+//
+//    }
 
     public void confirm(String qrCode,Handler handler) {
         String serverPublicKey = getServerPublicKey();
@@ -235,7 +243,7 @@ public class HttpUtil {
 
     private void setUserPrivateKey(String userPrivateKey) {
         mUserPrivateKey = userPrivateKey;
-        Log.v(TAG, "更新当前操作用户的私钥为：" + HttpUtil.getInstance().mUserPrivateKey);
+        Log.v(TAG, "更新当前操作用户的私钥为：" + mUserPrivateKey);
     }
 
     private void initUserPrivateKey(String pinCode) {
@@ -333,6 +341,7 @@ public class HttpUtil {
                     Message message = mHandler.obtainMessage();
                     JSONObject response = getJSONObjectFromInputStream(inputStream);
                     String encryptedKey = (String) response.get("encrypted_key");
+                    Log.v(TAG,"加密过得des密文:"+encryptedKey);
                     String key = SecurityUtil.decryptStringByRSAPrivateKeyString(encryptedKey, userPrivateKey);
 
                     Log.v(TAG, encryptedKey);
@@ -350,14 +359,14 @@ public class HttpUtil {
                             String userId = (String) data.get("user_id");
                             String signedHash = (String) data.get("signed_hash");
 
-                            if (SecurityUtil.verifyStringByRSAPublicKeyString(userId, signedHash, mServerPublicKey)) {
+                            if (SecurityUtil.verifyStringByRSAPublicKeyString(userId, signedHash, HttpUtil.getServerPublicKey())) {
                                 Log.v(TAG, "服务器的响应验签通过");
                                 mesObj.put("user_name", userName);
                                 mesObj.put("user_id", userId);
                                 mesObj.put("error", null);
                                 Log.v(TAG, "获取到的用户ID是：" + userId);
 
-                                Log.v(TAG, "正要将这个私钥写入文件:" + HttpUtil.getInstance().mUserPrivateKey);
+                                Log.v(TAG, "正要将这个私钥写入文件:" + userPrivateKey);
 
                                 // 用PIN码将私钥字符串加密然后写入文件
                                 String desKeyString = SecurityUtil.getDESKeyString(pinCode);
@@ -443,7 +452,11 @@ public class HttpUtil {
                     Message message = mhandler.obtainMessage();
                     JSONObject response = getJSONObjectFromInputStream(inputStream);
                     String encryptedKey = (String) response.get("encrypted_key");
-                    String key = SecurityUtil.decryptStringByRSAPrivateKeyString(encryptedKey, HttpUtil.getInstance().mUserPrivateKey);
+
+                    Log.v(TAG, "登录前拿到的私钥是：" + HttpUtil.getInstance().getUserPrivateKey());
+                    Log.v(TAG, "加密过得des的密文是：" + encryptedKey);
+
+                    String key = SecurityUtil.decryptStringByRSAPrivateKeyString(encryptedKey, HttpUtil.getInstance().getUserPrivateKey());
 
                     Log.v(TAG, encryptedKey);
                     Log.v(TAG, key);
@@ -459,7 +472,7 @@ public class HttpUtil {
                             String token = (String) data.get("token");
                             String signedHash = (String) data.get("signed_hash");
 
-                            if (SecurityUtil.verifyStringByRSAPublicKeyString(token, signedHash, mServerPublicKey)) {
+                            if (SecurityUtil.verifyStringByRSAPublicKeyString(token, signedHash, HttpUtil.getServerPublicKey())) {
                                 Log.v(TAG, "服务器的响应验签通过");
                                 mesObj.put("token", token);
                                 mesObj.put("error", null);
