@@ -17,7 +17,6 @@ public class UserPageActivity extends Activity implements View.OnClickListener {
 
         mScanButton = findViewById(R.id.scan_button);
         mScanButton.setOnClickListener(this);
-
     }
 
     @Override

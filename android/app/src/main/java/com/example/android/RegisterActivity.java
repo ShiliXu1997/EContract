@@ -25,8 +25,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     public static final int MESSAGE_REGISTER_SUCCESS_RESPONSE = 0x00005000;
     public static final int MESSAGE_REGISTER_FAIL_RESPONSE = 0x00005001;
-    public static final int MESSAGE_LOGIN_SUCCESS_RESPONSE = 0x00005002;
-    public static final int MESSAGE_LOGIN_FAIL_RESPONSE = 0x00005003;
 
     private TextView mHintTextView;
     private EditText mUserNameEdit;

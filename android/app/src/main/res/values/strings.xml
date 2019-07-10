@@ -53,7 +53,12 @@
     <string name="code_text">请输入生成二维码的文本信息</string>
     <string name="qrcodetext">这里显示扫描结果</string>
 
-    <string name="confirm_login_text">新设备请求登录,是否授权,授权后新设备将拥有与本设备相同的权限</string>
+    <string name="confirm_login_text">是否对新设备授权,允许它拥有与本设备相同的权限</string>
     <string name="confirm_login">确认授权</string>
-    <string name="cancal_confirm_login">取消</string>
+    <string name="cancel_confirm_login">取消</string>
+
+    <string name="qr_pin_beforeLogin_hint">
+        现在设置一个口令完成新设备的绑定，以后您在本设备的登录都要用到它\n\n
+        注意：该口令只可用于本设备的登录，同一用户的不同设备口令可能是不一样的，依用户设定而定！
+    </string>
 </resources>

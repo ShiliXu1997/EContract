@@ -3,10 +3,12 @@ package utils;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.util.JsonReader;
 import android.util.Log;
 
 import com.example.android.ConfirmActivity;
 import com.example.android.LoginActivity;
+import com.example.android.QrPinActivity;
 import com.example.android.RegisterActivity;
 
 import org.json.JSONArray;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.lang.annotation.Target;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -160,12 +163,65 @@ public class HttpUtil {
 
     public void getQrCode(Handler handler) {
         RequestForQrcode requestForQrcode = new RequestForQrcode(handler);
-        requestForQrcode.execute(mBaseAddress + "/hi/auth_code");
+        requestForQrcode.execute(mBaseAddress + "/api/auth/code");
     }
 
-//    public void qrLogin(String userId, String pinCode, Handler handler) {
-//
-//    }
+    public void qrLogin(String userId, String pinCode, Handler handler) {
+        String serverPublicKey = getServerPublicKey();
+        RequestToQrLogin requestToQrLogin = new RequestToQrLogin(handler);
+        JSONArray requests = new JSONArray();
+        try {
+            JSONObject address = new JSONObject();
+            address.put("address", mBaseAddress + "/app/qrcode_login");
+
+            //生成本地公私钥
+            Map<String, String> userKeyPair = SecurityUtil.getRSAKeyPair();
+            String userPublicKey = userKeyPair.get("public_key");
+            String userPrivateKey = userKeyPair.get("private_key");
+
+            Log.v(TAG, "用户生成的公钥是：" + userPublicKey);
+            Log.v(TAG, "用户生成的私钥是：" + userPrivateKey);
+
+            String phoneId = "Xiaomi 9 SE";
+
+            String key = SecurityUtil.getDESKeyString();
+            Log.v(TAG, "随机生成的对称密钥是：" + key);
+            String encryptedKey = SecurityUtil.encryptStringByRSAPublicKeyString(key, serverPublicKey);
+            Log.v(TAG, "已成功使用公钥加密对称钥");
+
+            Date date = new Date();
+            String time = String.valueOf(date.getTime());
+
+            String signedHash = SecurityUtil.signStringByRSAPrivateKeyString(userId + phoneId + userPublicKey + time, userPrivateKey);
+
+            JSONObject data = new JSONObject();
+
+            data.put("user_id", userId);
+            data.put("phone_id",phoneId);
+            data.put("public_key",userPublicKey);
+            data.put("time",time);
+            data.put("hash", signedHash);
+            String desData = SecurityUtil.encryptStringByDESKeyString(data.toString(), key);
+
+            JSONObject body = new JSONObject();
+            body.put("encrypted_key", encryptedKey);
+            body.put("data", desData);
+
+            JSONObject info = new JSONObject();
+            info.put("private_key", userPrivateKey);
+            info.put("pin_code", pinCode);
+            info.put("userId",userId);
+
+            requests.put(address);
+            requests.put(body);
+            requests.put(info);
+
+            Log.v(TAG, "正准备向后台发送注册请求包");
+        } catch (JSONException jsonException) {
+            jsonException.printStackTrace();
+        }
+        requestToQrLogin.execute(requests);
+    }
 
     public void confirm(String qrCode,Handler handler) {
         String serverPublicKey = getServerPublicKey();
@@ -547,12 +603,13 @@ public class HttpUtil {
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     InputStream inputStream = connection.getInputStream();
 
-                    JSONObject data = new JSONObject(getJSONObjectFromInputStream(inputStream).get("data").toString());
-                    qrCode = (String) data.get("str");
+                    JSONObject response = getJSONObjectFromInputStream(inputStream);
+                    qrCode = (String) response.get("data");
 
                     Message message = mHander.obtainMessage();
                     message.what = LoginActivity.GET_QR_CODE_SUCCESS;
                     message.obj = qrCode;
+                    message.sendToTarget();
                 }
                 else
                     return "GET the URL successfully but the qr_code is wrong!";
@@ -639,6 +696,85 @@ public class HttpUtil {
 
             // 直接返回一个空字符串，如果需要结束后做什么事，可以在这里扩展
             return "";
+        }
+    }
+
+    private class RequestToQrLogin extends AsyncTask<JSONArray, Integer, JSONObject> {
+
+        private Handler mHandler;
+
+        public RequestToQrLogin(Handler handler) {
+            this.mHandler = handler;
+        }
+
+        @Override
+        protected JSONObject doInBackground(JSONArray... requests) {
+            try {
+                JSONObject address = requests[0].getJSONObject(0);
+                JSONObject body = requests[0].getJSONObject(1);
+                JSONObject info = requests[0].getJSONObject(2);
+
+                String userPrivateKey = (String) info.get("private_key");
+                String pinCode = (String) info.get("pin_code");
+                String userId = (String) info.get("Userid");
+
+                URL url = new URL((String) address.get("address"));
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setReadTimeout(5000);
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+                connection.setUseCaches(false);
+                connection.setRequestProperty("Content-type", "application/x-java-serialized-object");
+
+                PrintStream printStream = new PrintStream(connection.getOutputStream());
+                printStream.print(body.toString());
+                printStream.flush();
+                printStream.close();
+
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    Log.v(TAG, "响应码为200");
+                    InputStream inputStream = connection.getInputStream();
+                    Log.v(TAG, "已获取响应的输入流");
+
+                    JSONObject response = getJSONObjectFromInputStream(inputStream);
+
+                    Log.v(TAG,"得到后台的响应:"+response.toString());
+
+                    int status_code = (int) response.get("status_code");
+                    String token = (String) response.get("token");
+                    if(status_code == 200) {
+                        Log.v(TAG, "qr登录成功");
+
+                        // 用PIN码将私钥字符串加密然后写入文件
+                        String desKeyString = SecurityUtil.getDESKeyString(pinCode);
+                        String ekey = SecurityUtil.encryptStringByDESKeyString(userPrivateKey, desKeyString);
+                        FileUtil.writeFile(userId, ekey);
+
+                        //保存userId和token
+                        HttpUtil.getInstance().setToken(token);
+                        HttpUtil.getInstance().setUserId(userId);
+
+                        //消息回调
+                        Message message = mHandler.obtainMessage();
+                        message.what = QrPinActivity.QR_LOGIN_SUCCESS;
+                        message.sendToTarget();
+
+                    }
+                } else {
+                    System.out.println("POST to register failed!");
+                }
+            } catch (MalformedURLException malformedUrlException) {
+                malformedUrlException.printStackTrace();
+            } catch (JSONException jsonException) {
+                jsonException.printStackTrace();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+
+            // 直接返回一个空JSONObject，如果需要结束后做什么事，可以在这里扩展
+            JSONObject result = new JSONObject();
+            return result;
         }
     }
 }
