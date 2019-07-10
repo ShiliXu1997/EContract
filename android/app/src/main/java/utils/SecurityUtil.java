@@ -51,6 +51,23 @@ public class SecurityUtil {
         return keyString;
     }
 
+    public static String getDESKeyString(String seed) {
+        String keyString = "";
+        try {
+            DESKeySpec desKeySpec = new DESKeySpec(seed.getBytes());
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+            SecretKey secretKey = keyFactory.generateSecret(desKeySpec);
+            keyString = base64Encode(secretKey.getEncoded());
+        } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+            noSuchAlgorithmException.printStackTrace();
+        } catch (InvalidKeyException invalidKeyException) {
+            invalidKeyException.printStackTrace();
+        } catch (InvalidKeySpecException invalidKeySpecException) {
+            invalidKeySpecException.printStackTrace();
+        }
+        return keyString;
+    }
+
     public static String encryptStringByDESKeyString(String str, String keyString) {
         String ans = "";
         try {

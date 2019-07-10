@@ -8,14 +8,12 @@ import android.os.Message;
 import android.view.View;
 import android.widget.Button;
 
-import org.json.JSONObject;
-
 import utils.HttpUtil;
 
 public class ConfirmActivity extends Activity implements View.OnClickListener {
-    public static final int CONFIRM_SUCCESS = 12306;
-    public static final int CONFIRM_FAIL = 12307;
 
+    public static final int CONFIRM_SUCCESS = 0x00004001;
+    public static final int CONFIRM_FAIL = 0x00004002;
 
     private Button confire_login;
     private Button cancal_confire_login;
@@ -26,7 +24,7 @@ public class ConfirmActivity extends Activity implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.confirmlogin);
+        setContentView(R.layout.activity_confirm);
 
 
         //拿到扫描的二维码的内容

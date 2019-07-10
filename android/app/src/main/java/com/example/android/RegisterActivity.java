@@ -23,6 +23,11 @@ import static android.content.ContentValues.TAG;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    public static final int MESSAGE_REGISTER_SUCCESS_RESPONSE = 0x00005000;
+    public static final int MESSAGE_REGISTER_FAIL_RESPONSE = 0x00005001;
+    public static final int MESSAGE_LOGIN_SUCCESS_RESPONSE = 0x00005002;
+    public static final int MESSAGE_LOGIN_FAIL_RESPONSE = 0x00005003;
+
     private TextView mHintTextView;
     private EditText mUserNameEdit;
     private EditText mCardIdEdit;
@@ -63,14 +68,14 @@ public class RegisterActivity extends AppCompatActivity {
                 mPinEdit.setText("");
                 try {
                     switch (message.what) {
-                        case HttpUtil.MESSAGE_REGISTER_SUCCESS_RESPONSE:
+                        case MESSAGE_REGISTER_SUCCESS_RESPONSE:
                             JSONObject mesObj = (JSONObject) message.obj;
                             String userId = (String) mesObj.get("user_id");
                             String successString = getString(com.example.android.R.string.register_waitForApprove_hint);
                             successString = String.format(successString, userId);
                             mHintTextView.setText(successString);
                             break;
-                        case HttpUtil.MESSAGE_REGISTER_FAIL_RESPONSE:
+                        case MESSAGE_REGISTER_FAIL_RESPONSE:
                             String failString = getString(com.example.android.R.string.register_fail_hint);
                             mHintTextView.setText(failString);
                             break;
@@ -111,10 +116,10 @@ public class RegisterActivity extends AppCompatActivity {
                 case com.example.android.R.id.register_button:
                     String userName = mUserNameEdit.getText().toString();
                     String cardId = mCardIdEdit.getText().toString();
-                    String pin = mPinEdit.getText().toString();
+                    String pinCode = mPinEdit.getText().toString();
 
                     HttpUtil httpUtil = HttpUtil.getInstance();
-                    httpUtil.register(userName, cardId, mHandler);
+                    httpUtil.register(userName, cardId, pinCode, mHandler);
                     break;
                 default:
                     break;

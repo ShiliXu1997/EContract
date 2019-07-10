@@ -26,8 +26,9 @@ import static android.content.ContentValues.TAG;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
-    //口令登录成功
-    public static final int NORMAL_LOGIN_SUCCESS=1;
+    //口令登录成功与失败的反馈
+    public static final int MESSAGE_PINLOGIN_SUCCESS_RESPONSE = 0x00003001;
+    public static final int MESSAGE_PINLOGIN_FAIL_RESPONSE = 0x00003002;
     //获取后台二维码成功
     public static final int GET_QR_CODE_SUCCESS = 2;
     //后台二维码扫码登录成功
@@ -76,7 +77,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             //开启长连接
                             break;
 
-                        case LoginActivity.NORMAL_LOGIN_SUCCESS:
+                        case LoginActivity.MESSAGE_PINLOGIN_SUCCESS_RESPONSE:
                             /*
                             拿到message返回的token值
                             携带token值跳转到UserPageActivity
@@ -85,6 +86,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             token= (String)mess.get("token");
                             intent = new Intent(LoginActivity.this, UserPageActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
+                            break;
+                        case LoginActivity.MESSAGE_PINLOGIN_FAIL_RESPONSE:
+                            // 这里写如果登录失败该怎么搞
                             break;
                         case LoginActivity.QR_LOGIN_SUCCESS:
                             /*
@@ -142,7 +146,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 return;
 
             HttpUtil httpUtil = HttpUtil.getInstance();
-            httpUtil.login(userid, pin,mHandler);
+            httpUtil.pinLogin(userid, pin,mHandler);
 
             setActionBar("登录中...");
 

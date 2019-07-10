@@ -8,20 +8,17 @@ import android.widget.Button;
 
 public class UserPageActivity extends Activity implements View.OnClickListener {
 
-    private Button scan_button;
+    private Button mScanButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.userpage);
+        setContentView(R.layout.activity_userpage);
 
-        scan_button = findViewById(R.id.scan_button);
-        scan_button.setOnClickListener(this);
+        mScanButton = findViewById(R.id.scan_button);
+        mScanButton.setOnClickListener(this);
 
     }
-
-
-
 
     @Override
     public void onClick(View view) {
