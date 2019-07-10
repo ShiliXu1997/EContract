@@ -17,11 +17,11 @@ import java.net.URISyntaxException;
 import utils.HttpUtil;
 import utils.SecurityUtil;
 
-public class newDeviceLoginWebSocket extends WebSocketClient {
+public class NewDeviceLoginWebSocket extends WebSocketClient {
 
     private Handler mHandler;
 
-    public newDeviceLoginWebSocket(URI serverUri,Handler handler) {
+    public NewDeviceLoginWebSocket(URI serverUri,Handler handler) {
         super(serverUri);
         this.mHandler = handler;
     }
@@ -70,7 +70,7 @@ public class newDeviceLoginWebSocket extends WebSocketClient {
     public static void main_run(String url, Handler handler) {
         WebSocketClient client = null;
         try {
-            client = new newDeviceLoginWebSocket(new URI(url),handler);
+            client = new NewDeviceLoginWebSocket(new URI(url),handler);
         } catch (URISyntaxException e) {
             System.out.println("url error");
             e.printStackTrace();
