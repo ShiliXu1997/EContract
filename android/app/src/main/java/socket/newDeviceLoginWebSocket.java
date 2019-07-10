@@ -14,11 +14,14 @@ import org.json.JSONObject;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class socketclient extends WebSocketClient {
+import utils.HttpUtil;
+import utils.SecurityUtil;
+
+public class newDeviceLoginWebSocket extends WebSocketClient {
 
     private Handler mHandler;
 
-    public socketclient(URI serverUri,Handler handler) {
+    public newDeviceLoginWebSocket(URI serverUri,Handler handler) {
         super(serverUri);
         this.mHandler = handler;
     }
@@ -31,17 +34,27 @@ public class socketclient extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         System.out.println("new message:" + message);
-        Message mess = mHandler.obtainMessage();
-        mess.what = LoginActivity.GET_QR_CODE_SUCCESS;
-        JSONObject mesObj = new JSONObject();
+
         try {
-            mesObj.put("qr_code",message);
+            JSONObject data = new JSONObject(message);
+            String userId = (String) data.get("user_id");
+            String signedHash = (String)data.get("signed_hash");
+            if (SecurityUtil.verifyStringByRSAPublicKeyString(userId,signedHash, HttpUtil.getServerPublicKey())) {
+                System.out.println("userId验签成功");
+                Message mess = mHandler.obtainMessage();
+                mess.what = LoginActivity.GET_QR_CODE_SUCCESS;
+                JSONObject mesObj = new JSONObject();
+                mesObj.put("userId",userId);
+                mess.obj = mesObj;
+                mess.sendToTarget();
+            } else {
+                System.out.println("userId验签失败");
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        mess.obj = mesObj;
 
-        mess.sendToTarget();
+
     }
 
     @Override
@@ -57,7 +70,7 @@ public class socketclient extends WebSocketClient {
     public static void main_run(String url, Handler handler) {
         WebSocketClient client = null;
         try {
-            client = new socketclient(new URI(url),handler);
+            client = new newDeviceLoginWebSocket(new URI(url),handler);
         } catch (URISyntaxException e) {
             System.out.println("url error");
             e.printStackTrace();

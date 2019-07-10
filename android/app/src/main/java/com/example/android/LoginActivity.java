@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONObject;
 
+import socket.newDeviceLoginWebSocket;
 import utils.HttpUtil;
 import utils.QRCodeUtil;
 
@@ -29,10 +30,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     //口令登录成功与失败的反馈
     public static final int MESSAGE_PINLOGIN_SUCCESS_RESPONSE = 0x00003001;
     public static final int MESSAGE_PINLOGIN_FAIL_RESPONSE = 0x00003002;
-    //获取后台二维码成功
-    public static final int GET_QR_CODE_SUCCESS = 2;
-    //后台二维码扫码登录成功
-    public static final int QR_LOGIN_SUCCESS = 3;
+    //从后台获取二维码成功
+    public static final int GET_QR_CODE_SUCCESS = 0x00003003;
+    //二维码被扫描成功,得到userId
+    public static final int QR_LOGIN_SUCCESS = 0x00003004;
+
 
     private EditText mUserIdEdit;
     private EditText mPinEdit;
@@ -75,6 +77,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             String qrCode = (String) message.obj;
                             show_qr_image(qrCode);
                             //开启长连接
+                            String url = "ws://47,95,214.69:1002/api/auth/codeStatus?code="+qrCode;
+                            newDeviceLoginWebSocket.main_run(url,mHandler);
                             break;
 
                         case LoginActivity.MESSAGE_PINLOGIN_SUCCESS_RESPONSE:
@@ -90,13 +94,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         case LoginActivity.MESSAGE_PINLOGIN_FAIL_RESPONSE:
                             // 这里写如果登录失败该怎么搞
                             break;
+
                         case LoginActivity.QR_LOGIN_SUCCESS:
                             /*
-                            拿到message返回的token值
-                            携带token值跳转到UserPageActivity
+                            拿到message返回的userId值
+                            携带userID值跳转到UserPageActivity
                              */
                             mess= (JSONObject) message.obj;
-                            token= (String)mess.get("token");
+                            String userId = (String)mess.get("userId");
+                            HttpUtil.getInstance();
                             //跳转到设定pin码
                             intent = new Intent(LoginActivity.this, UserPageActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
