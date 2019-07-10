@@ -47,23 +47,25 @@ public class NewDeviceLoginWebSocket extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
-        Log.v(TAG, "new message:" + message);
+        Log.v(TAG, "服务器长连接消息:" + message);
         try {
             JSONObject data = new JSONObject(message);
-            String userId = (String) data.get("user_id");
-            String signedHash = (String) data.get("signed_hash");
-
-            if (SecurityUtil.verifyStringByRSAPublicKeyString(userId, signedHash, HttpUtil.getServerPublicKey())) {
-                Log.v(TAG, "对服务器验签通过！");
+            int statusCode = (int) data.get("status");
+            if(statusCode == 200) {
+                String token = (String)data.get("data");
+                //回调
                 Message mess = mHandler.obtainMessage();
-                mess.what = LoginActivity.GET_QR_CODE_SUCCESS;
-                JSONObject mesObj = new JSONObject();
-                mesObj.put("userId", userId);
-                mess.obj = mesObj;
+                mess.what = LoginActivity.GET_TOKEN_SUCCESS;
+                mess.obj = token;
                 mess.sendToTarget();
-            } else {
-                Log.v(TAG, "对服务器验签失败！");
+            } else if(statusCode == 400) {
+                //回调
+                System.out.println("服务器长连接返回400!");
             }
+
+            //关闭长连接
+            this.close();
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

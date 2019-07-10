@@ -13,11 +13,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONObject;
+
+import java.security.PublicKey;
 
 import socket.NewDeviceLoginWebSocket;
 import utils.HttpUtil;
@@ -30,10 +33,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     //口令登录成功与失败的反馈
     public static final int MESSAGE_PINLOGIN_SUCCESS_RESPONSE = 0x00003001;
     public static final int MESSAGE_PINLOGIN_FAIL_RESPONSE = 0x00003002;
+
+
     //从后台获取二维码成功
     public static final int GET_QR_CODE_SUCCESS = 0x00003003;
-    //二维码被扫描成功,得到userId
-    public static final int QR_LOGIN_SUCCESS = 0x00003004;
+    public static final int GET_QR_CODE_FAIL = 0x00003004;
+    //二维码被扫描成功,得到token
+    public static final int GET_TOKEN_SUCCESS = 0x00003005;
+    public static final int GET_TOKEN_FAIL = 0x00003006;
+    //携带token获取userId成功
+    public static final int GET_USERID_SUCCESS = 0x00003007;
+    public static final int GET_USERID_FAIL = 0x00003008;
 
 
     private EditText mUserIdEdit;
@@ -67,19 +77,25 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mHandler = new Handler() {
             public void handleMessage(Message message) {
                 super.handleMessage(message);
+
                 int what = message.what;
-                JSONObject mess;
                 String token;
                 Intent intent;
+
                 try {
                     switch (what) {
                         case LoginActivity.GET_QR_CODE_SUCCESS:
                             String qrCode = (String) message.obj;
-                            show_qr_image(qrCode);
+                            //生成二维码图片时给qrcode做标记,方便扫码的设备区分二维码类型
+                            show_qr_image("qrCode"+qrCode);
                             //开启长连接
                             String url = "ws://47.95.214.69:1002/auth/codeStatus?code="+qrCode;
                             System.out.println("url:"+url);
                             NewDeviceLoginWebSocket.main_run(url,mHandler);
+                            break;
+
+                        case LoginActivity.GET_QR_CODE_FAIL:
+                            Toast.makeText(LoginActivity.this, "服务器出错了,请稍后再试", Toast.LENGTH_LONG).show();
                             break;
 
                         case LoginActivity.MESSAGE_PINLOGIN_SUCCESS_RESPONSE:
@@ -87,22 +103,32 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             拿到message返回的token值
                             携带token值跳转到UserPageActivity
                              */
-                            mess= (JSONObject) message.obj;
-                            token= (String)mess.get("token");
+                            token= (String)((JSONObject) message.obj).get("token");
                             intent = new Intent(LoginActivity.this, UserPageActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
                             break;
                         case LoginActivity.MESSAGE_PINLOGIN_FAIL_RESPONSE:
                             // 这里写如果登录失败该怎么搞
+                            String errorMessage = (String) ((JSONObject) message.obj).get("error");
+                            Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                            setActionBar("用户名登录");
                             break;
 
-                        case LoginActivity.QR_LOGIN_SUCCESS:
-                            /*
-                            拿到message返回的userId值
-                            携带userID值跳转到UserPageActivity
+                        case LoginActivity.GET_TOKEN_SUCCESS:
+                            /**
+                             * 成功拿到token值
+                             * 携带token值请求userId
                              */
-                            mess= (JSONObject) message.obj;
-                            String userId = (String)mess.get("userId");
+                            token = (String) message.obj;
+                            System.out.println("成功token值:"+token);
+                            getUserIdWithToken(token);
+
+                        case LoginActivity.GET_USERID_SUCCESS:
+                            /*
+                            拿到message返回的userId
+                            携带userId值跳转到UserPageActivity
+                             */
+                            String userId = (String) message.obj;
                             System.out.println("得到userId:"+userId);
                             //跳转到设定pin码
                             intent = new Intent(LoginActivity.this, QrPinActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -123,12 +149,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    public void show_qr_image(String qr_code) {
+    private void show_qr_image(String qr_code) {
         Bitmap mBitmap = QRCodeUtil.createQRCodeBitmap(qr_code, 480, 480);
         qr_image.setImageBitmap(mBitmap);
         mUserIdEdit.setVisibility(EditText.INVISIBLE);
         mPinEdit.setVisibility(EditText.INVISIBLE);
         qr_image.setVisibility(ImageView.VISIBLE);
+    }
+
+    private void getUserIdWithToken(String token) {
+        HttpUtil httpUtil = HttpUtil.getInstance();
+        httpUtil.getUserIdByTokenToLogin(token , mHandler);
     }
 
     @Override
@@ -154,7 +185,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     mUserIdEdit.setVisibility(EditText.VISIBLE);
                     mPinEdit.setVisibility(EditText.VISIBLE);
                     qr_image.setVisibility(ImageView.INVISIBLE);
-                    setActionBar("口令登录");
+                    setActionBar("用户名登录");
                 } else {
                     String userid = mUserIdEdit.getText().toString();
                     String pin = mPinEdit.getText().toString();

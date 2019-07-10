@@ -32,6 +32,7 @@
 
     <string name="qrcode_login_tittle">二维码登录</string>
     <string name="qrcode_login_userId">用户账号</string>
+    <string name="qrcode_login_setfinished">完成</string>
 
     <string name="pincode_login_tittle">口令登录</string>
     <string name="pincode_login_userId">用户账号</string>
@@ -57,8 +58,14 @@
     <string name="confirm_login">确认授权</string>
     <string name="cancel_confirm_login">取消</string>
 
+    <string name="websign_text">点击确认将视为同意对网页内容进行签名,否则点击取消</string>
+    <string name="confirm_websign_button">签名</string>
+    <string name="cancal_websign_button">取消</string>
+
     <string name="qr_pin_beforeLogin_hint">
         现在设置一个口令完成新设备的绑定，以后您在本设备的登录都要用到它\n\n
         注意：该口令只可用于本设备的登录，同一用户的不同设备口令可能是不一样的，依用户设定而定！
     </string>
+
+    <string name="userpage_scan_button_text">扫一扫</string>
 </resources>

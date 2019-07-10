@@ -186,14 +186,8 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
                     //扫描结果
                     Result result = scanningImage(photo_path);
 
-                    System.out.println("二维码:"+result.getText().toString());
-                    Bundle _data=new Bundle();
-                    _data.putString("qr_code",result.getText().toString());
-                    Intent intent = new Intent(CaptureActivity.this, com.example.android.ConfirmActivity.class);
-                    //创建了一个从MainActivity跳转到Main2Activity的Intent
-                    intent.putExtras(data);
-                    //将存储了数据的Bundle对象put进Intent里面
-                    startActivity(intent);
+                    jumpToNewActivity(result.getText().toString());
+
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -287,17 +281,7 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
         if (TextUtils.isEmpty(resultString)) {
             Toast.makeText(CaptureActivity.this, "Scan failed!", Toast.LENGTH_SHORT).show();
         } else {
-
-            System.out.println("二维码:"+resultString);
-            Bundle data=new Bundle();
-            data.putString("qr_code",resultString);
-            Intent intent = new Intent(CaptureActivity.this, com.example.android.ConfirmActivity.class);
-            //创建了一个从MainActivity跳转到Main2Activity的Intent
-            intent.putExtras(data);
-            //将存储了数据的Bundle对象put进Intent里面
-            startActivity(intent);
-
-
+            jumpToNewActivity(resultString);
         }
 
     }
@@ -395,4 +379,23 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
         }
     };
 
+    private void jumpToNewActivity(String qrCode) {
+        System.out.println("二维码:"+qrCode);
+        Intent intent;
+
+        //判断该二维码是否是新设备登录用
+        if(qrCode.substring(0,6).equals("qrCode")) {
+            //去掉二维码串的标识前缀
+            qrCode = qrCode.substring(6);
+            System.out.println("截取后的qrCode:"+qrCode);
+            //跳转到授权新设备的ConfirmActivity
+            intent = new Intent(CaptureActivity.this, com.example.android.ConfirmActivity.class);
+        } else {
+            intent = new Intent(CaptureActivity.this, com.example.android.WebsignActivity.class);
+        }
+        Bundle data=new Bundle();
+        data.putString("qrCode",qrCode);
+        intent.putExtras(data);
+        startActivity(intent);
+    }
 }

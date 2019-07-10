@@ -42,6 +42,12 @@
         <activity android:name=".UserPageActivity">
         </activity>
 
+        <activity android:name=".WebsignActivity">
+        </activity>
+
+        <activity android:name=".QrPinActivity">
+        </activity>
+
         <activity android:name="com.google.zxing.activity.CaptureActivity"
             android:theme="@style/qrBar">
         </activity>
