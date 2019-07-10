@@ -34,6 +34,7 @@ public class HttpUtil {
     private static String mServerPublicKey = "";
 
     private String mUserId = "";
+    private String mPhoneId = "";
     private String mUserPrivateKey = "";
     private String mToken = "";
 
@@ -64,6 +65,9 @@ public class HttpUtil {
             Map<String, String> userKeyPair = SecurityUtil.getRSAKeyPair();
             String userPublicKey = userKeyPair.get("public_key");
             String userPrivateKey = userKeyPair.get("private_key");
+
+            Log.v(TAG, "用户生成的公钥是：" + userPublicKey);
+            Log.v(TAG, "用户生成的私钥是：" + userPrivateKey);
 
             String phoneId = "Xiaomi 9 SE";
 
@@ -155,7 +159,7 @@ public class HttpUtil {
 
     }
 
-    public void confirm(String qrCode,String userid, String phoneId, Handler handler) {
+    public void confirm(String qrCode,Handler handler) {
         String serverPublicKey = getServerPublicKey();
         String userPrivateKey = "";
         RequestToConfirm requestToConfirm = new RequestToConfirm(handler);
@@ -167,12 +171,13 @@ public class HttpUtil {
             JSONObject data= new JSONObject();
             Date date = new Date();
             String time = String.valueOf(date.getTime());
-            String signedHash = SecurityUtil.signStringByRSAPrivateKeyString(userid + phoneId + qrCode + time, userPrivateKey);
 
-            data.put("user_id", userid);
-            data.put("phone_id", phoneId);
-            data.put("random_str", qrCode);
+            String signedHash = SecurityUtil.signStringByRSAPrivateKeyString(time + mUserId  + mPhoneId + qrCode , userPrivateKey);
+
             data.put("time", time);
+            data.put("user_id", mUserId);
+            data.put("phone_id", mPhoneId);
+            data.put("random_str", qrCode);
             data.put("signed_hash", signedHash);
 
             String desData = SecurityUtil.encryptStringByDESKeyString(data.toString(), key);
@@ -219,8 +224,9 @@ public class HttpUtil {
         return jsonObject;
     }
 
-    private void setUserId(String userName) {
-        mUserId = userName;
+    private void setUserId(String userId) {
+        mUserId = userId;
+        Log.v(TAG, "更新当前操作用户的ID为：" + userId);
     }
 
     private void setToken(String token) {
@@ -229,6 +235,7 @@ public class HttpUtil {
 
     private void setUserPrivateKey(String userPrivateKey) {
         mUserPrivateKey = userPrivateKey;
+        Log.v(TAG, "更新当前操作用户的私钥为：" + HttpUtil.getInstance().mUserPrivateKey);
     }
 
     private void initUserPrivateKey(String pinCode) {
@@ -350,6 +357,8 @@ public class HttpUtil {
                                 mesObj.put("error", null);
                                 Log.v(TAG, "获取到的用户ID是：" + userId);
 
+                                Log.v(TAG, "正要将这个私钥写入文件:" + HttpUtil.getInstance().mUserPrivateKey);
+
                                 // 用PIN码将私钥字符串加密然后写入文件
                                 String desKeyString = SecurityUtil.getDESKeyString(pinCode);
                                 String ekey = SecurityUtil.encryptStringByDESKeyString(userPrivateKey, desKeyString);
@@ -393,7 +402,7 @@ public class HttpUtil {
         }
     }
 
-    private class RequestToPinLogin extends AsyncTask<JSONArray, Integer, JSONObject> {
+    private static class RequestToPinLogin extends AsyncTask<JSONArray, Integer, JSONObject> {
 
         private Handler mhandler;
 
@@ -434,7 +443,7 @@ public class HttpUtil {
                     Message message = mhandler.obtainMessage();
                     JSONObject response = getJSONObjectFromInputStream(inputStream);
                     String encryptedKey = (String) response.get("encrypted_key");
-                    String key = SecurityUtil.decryptStringByRSAPrivateKeyString(encryptedKey, mUserPrivateKey);
+                    String key = SecurityUtil.decryptStringByRSAPrivateKeyString(encryptedKey, HttpUtil.getInstance().mUserPrivateKey);
 
                     Log.v(TAG, encryptedKey);
                     Log.v(TAG, key);
@@ -455,7 +464,7 @@ public class HttpUtil {
                                 mesObj.put("token", token);
                                 mesObj.put("error", null);
 
-                                getInstance().setToken(token);
+                                HttpUtil.getInstance().setToken(token);
                                 Log.v(TAG, "获取到的token：" + token);
                             } else {
                                 mesObj.put("error", "Got malicious message!");

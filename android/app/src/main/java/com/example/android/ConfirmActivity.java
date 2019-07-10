@@ -74,8 +74,6 @@ public class ConfirmActivity extends Activity implements View.OnClickListener {
 
     private void authorization(String qrCode) {
 
-        String userId = "";
-        String phoneId = "";
-        HttpUtil.getInstance().confirm(qrCode,userId,phoneId,this.mHander);
+        HttpUtil.getInstance().confirm(qrCode,this.mHander);
     }
 }

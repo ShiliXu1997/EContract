@@ -81,6 +81,7 @@ public class FileUtil {
                 fileOutputStream.write(content.getBytes());
                 fileOutputStream.flush();
             }
+            Log.v(TAG, "将这个内容写入文件：" + content);
         } catch (FileNotFoundException fileNotFoundException) {
             fileNotFoundException.printStackTrace();
         } catch (IOException ioException) {
