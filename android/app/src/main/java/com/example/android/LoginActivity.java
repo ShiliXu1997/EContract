@@ -77,7 +77,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             String qrCode = (String) message.obj;
                             show_qr_image(qrCode);
                             //开启长连接
-                            String url = "ws://47,95,214.69:1002/api/auth/codeStatus?code="+qrCode;
+                            String url = "ws://47.95.214.69:1002/auth/codeStatus?code="+qrCode;
+                            System.out.println("url:"+url);
                             newDeviceLoginWebSocket.main_run(url,mHandler);
                             break;
 
@@ -102,9 +103,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                              */
                             mess= (JSONObject) message.obj;
                             String userId = (String)mess.get("userId");
-                            HttpUtil.getInstance();
+                            System.out.println("得到userId:"+userId);
                             //跳转到设定pin码
-                            intent = new Intent(LoginActivity.this, UserPageActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            intent = new Intent(LoginActivity.this, QrPinActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            intent.putExtra("userId",userId);
                             startActivity(intent);
                             break;
 
@@ -143,26 +145,39 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View view) {
-        if(view.getId()==mLoginButton.getId()) {
-            String userid = mUserIdEdit.getText().toString();
-            System.out.println("userid"+userid);
-            String pin = mPinEdit.getText().toString();
+        int vid = view.getId();
+        switch (vid) {
 
-            if(userid.isEmpty()||pin.isEmpty())
-                return;
+            case R.id.login_button:
 
-            HttpUtil httpUtil = HttpUtil.getInstance();
-            httpUtil.pinLogin(userid, pin,mHandler);
+                if(getSupportActionBar().getTitle().toString()=="扫码登录") {
+                    mUserIdEdit.setVisibility(EditText.VISIBLE);
+                    mPinEdit.setVisibility(EditText.VISIBLE);
+                    qr_image.setVisibility(ImageView.INVISIBLE);
+                    setActionBar("口令登录");
+                } else {
+                    String userid = mUserIdEdit.getText().toString();
+                    String pin = mPinEdit.getText().toString();
+                    if(userid.isEmpty()||pin.isEmpty())
+                        return;
 
-            setActionBar("登录中...");
+                    //尝试使用pin码登录
+                    setActionBar("登录中...");
+                    HttpUtil httpUtil = HttpUtil.getInstance();
+                    httpUtil.pinLogin(userid, pin,mHandler);
+                }
+                break;
 
-        } else if(view.getId()==mqrLoginButton.getId()) {
-            setActionBar("扫码登录");
-            HttpUtil.getInstance().getQrCode(mHandler);
+
+            case R.id.qr_login_button:
+                setActionBar("扫码登录");
+                //向后台请求二维码
+                HttpUtil.getInstance().getQrCode(mHandler);
+                break;
         }
     }
 
-    public void setActionBar(String barText) {
+    private void setActionBar(String barText) {
         ActionBar mActionBar = getSupportActionBar();
         if (mActionBar != null) {
             mActionBar.setDisplayShowTitleEnabled(true);
@@ -170,7 +185,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             mActionBar.setHomeButtonEnabled(true);
             mActionBar.setDisplayHomeAsUpEnabled(true);
         }
-
     }
+
 
 }
