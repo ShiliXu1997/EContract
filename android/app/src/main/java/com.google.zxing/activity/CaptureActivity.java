@@ -383,15 +383,18 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
         System.out.println("二维码:"+qrCode);
         Intent intent;
 
-        //判断该二维码是否是新设备登录用
         if(qrCode.substring(0,6).equals("qrCode")) {
-            //去掉二维码串的标识前缀
+            //新设备登录用,为了和web端登录区分,先不去掉前缀
             qrCode = qrCode.substring(6);
-            System.out.println("截取后的qrCode:"+qrCode);
-            //跳转到授权新设备的ConfirmActivity
             intent = new Intent(CaptureActivity.this, com.example.android.ConfirmActivity.class);
-        } else {
+        } else if(qrCode.substring(0,13).equals("CONTRACTSCODE")){
+            //合同文件签名用,跳转到签名的WebsignActivity,去掉前缀
+            qrCode = qrCode.substring(13);
             intent = new Intent(CaptureActivity.this, com.example.android.WebsignActivity.class);
+        } else {
+            //web端登录用
+            intent = new Intent(CaptureActivity.this, com.example.android.ConfirmActivity.class);
+
         }
         Bundle data=new Bundle();
         data.putString("qrCode",qrCode);
