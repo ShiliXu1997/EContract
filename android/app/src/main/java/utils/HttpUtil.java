@@ -291,6 +291,9 @@ public class HttpUtil {
 
     public void websign(String qrCode,Handler handler) {
         String serverPublicKey = getServerPublicKey();
+
+        System.out.println("签名时的服务器公钥:"+serverPublicKey);
+
         RequestToWebsign requestToWebsign = new RequestToWebsign(handler);
         JSONArray requests = new JSONArray();
         try {
@@ -306,6 +309,9 @@ public class HttpUtil {
             data.put("hash", qrCode);
             data.put("signed_hash", signedHash);
 
+            System.out.println("签名时的加密过的deskey:"+encryptedKey);
+            System.out.println("签名时的明文data:"+data.toString());
+
             String desData = SecurityUtil.encryptStringByDESKeyString(data.toString(), key);
 
             JSONObject body = new JSONObject();
@@ -313,7 +319,7 @@ public class HttpUtil {
             body.put("data",desData);
 
             JSONObject addr = new JSONObject();
-            addr.put("address",mBaseAddress + "/app/scanContractSignCode?token="+mToken);
+            addr.put("address",mBaseAddress + "/app/scanContractsSignCode?token="+mToken);
 
             requests.put(addr);
             requests.put(body);
@@ -960,6 +966,7 @@ public class HttpUtil {
                 printStream.flush();
                 printStream.close();
 
+                System.out.println("扫码时的token值:"+HttpUtil.getInstance().mToken);
                 System.out.println("扫码模块向后台发送的url:"+address);
                 System.out.println("扫码模块向后台发送的内容:"+body.toString());
 
@@ -969,6 +976,8 @@ public class HttpUtil {
                     Log.v(TAG, "已获取响应的输入流");
                     JSONObject response = getJSONObjectFromInputStream(inputStream);
 
+                    Log.v(TAG,"后台的数据:"+response.toString());
+
                     int statusCode = (int) response.get("status_code");
 
                     Message message = mHandler.obtainMessage();
@@ -977,7 +986,7 @@ public class HttpUtil {
                             message.what = WebsignActivity.SIGN_SUCCESS;
                             break;
                         case 400:
-                            message.what = WebsignActivity.SIGN_FAIL;
+                            message.what = WebsignActivity.SIGN_STATUS_FAIL;
                             break;
                         default:
                             break;
@@ -1008,7 +1017,7 @@ public class HttpUtil {
 
         private void sendFailMessage() {
             Message message = mHandler.obtainMessage();
-            message.what = WebsignActivity.SIGN_FAIL;
+            message.what = WebsignActivity.SIGN_NETWORK_FAIL;
             message.sendToTarget();
         }
     }

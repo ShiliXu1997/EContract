@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import utils.HttpUtil;
 
@@ -17,6 +19,7 @@ public class ConfirmActivity extends Activity {
     public static final int CONFIRM_SUCCESS = 0x00004001;
     public static final int CONFIRM_FAIL = 0x00004002;
 
+    private TextView textView;
     private Button mConfirmButton;
     private Button mCancalButton;
     private String qrCode;
@@ -28,16 +31,26 @@ public class ConfirmActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirm);
 
-        //拿到扫描的二维码的内容
-        Bundle receive = getIntent().getExtras();
-        qrCode = receive.getString("qrCode");
+
 
         Log.v(TAG, "成功得到二维码:"+qrCode);
 
         //实例化按钮并设置监听
+        textView = (TextView)findViewById(R.id.hello_textView);
         mConfirmButton = (Button)findViewById(R.id.confirm_login_button);
         mCancalButton = (Button)findViewById(R.id.cancel_button);
         setListener();
+
+        //拿到扫描的二维码的内容
+        Bundle receive = getIntent().getExtras();
+        qrCode = receive.getString("qrCode");
+        if(qrCode.substring(0,6).equals("qrCode")) {
+            //新设备授权,去掉qrCode前缀
+            qrCode = qrCode.substring(6);
+        } else {
+            //web端登录
+            textView.setText("是否允许在web端登录");
+        }
 
         mHander = new Handler() {
             public void handleMessage(Message message) {
@@ -46,9 +59,11 @@ public class ConfirmActivity extends Activity {
                     switch (message.what) {
                         case ConfirmActivity.CONFIRM_SUCCESS:
                             ConfirmActivity.this.finish();
+                            Toast.makeText(ConfirmActivity.this, "扫码助登成功", Toast.LENGTH_LONG).show();
                             Log.v(TAG, "扫码助登成功！");
                             break;
                         case ConfirmActivity.CONFIRM_FAIL:
+                            Toast.makeText(ConfirmActivity.this, "扫码助登失败", Toast.LENGTH_LONG).show();
                             ConfirmActivity.this.finish();
                             break;
                     }

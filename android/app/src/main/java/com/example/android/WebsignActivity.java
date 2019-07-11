@@ -16,7 +16,9 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
 public class WebsignActivity extends Activity {
 
     public static final int SIGN_SUCCESS = 0x00006001;
-    public static final int SIGN_FAIL = 0x00006002;
+    public static final int SIGN_NETWORK_FAIL = 0x00006002;
+    public static final int SIGN_STATUS_FAIL = 0x00006003;
+
 
     private Button mSignButton;
     private Button mCancalButton;
@@ -31,7 +33,7 @@ public class WebsignActivity extends Activity {
 
         //拿到扫描的二维码的内容
         Bundle receive = getIntent().getExtras();
-        qrCode = receive.getString("qr_code");
+        qrCode = receive.getString("qrCode");
 
         Log.v(TAG, "成功得到二维码:"+qrCode);
 
@@ -47,14 +49,20 @@ public class WebsignActivity extends Activity {
                 try {
                     switch (message.what) {
                         case WebsignActivity.SIGN_SUCCESS:
-                            WebsignActivity.this.finish();
+//                            WebsignActivity.this.finish();
                             Toast.makeText(WebsignActivity.this, "扫码签名成功！", Toast.LENGTH_LONG).show();
                             Log.v(TAG, "扫码签名成功！");
                             break;
-                        case WebsignActivity.SIGN_FAIL:
-                            WebsignActivity.this.finish();
-                            Toast.makeText(WebsignActivity.this, "扫码签名失败！", Toast.LENGTH_LONG).show();
-                            Log.v(TAG, "扫码签名失败！");
+                        case WebsignActivity.SIGN_NETWORK_FAIL:
+//                            WebsignActivity.this.finish();
+                            Toast.makeText(WebsignActivity.this, "网络出错！", Toast.LENGTH_LONG).show();
+                            Log.v(TAG, "网络出错！");
+                            break;
+
+                        case WebsignActivity.SIGN_STATUS_FAIL:
+//                            WebsignActivity.this.finish();
+                            Toast.makeText(WebsignActivity.this, "二维码失效,尝试刷新Web端二维码！", Toast.LENGTH_LONG).show();
+                            Log.v(TAG, "二维码失效,尝试刷新Web端二维码！");
                             break;
                     }
                 } catch (Exception e) {
