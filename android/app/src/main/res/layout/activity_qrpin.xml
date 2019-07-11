@@ -99,7 +99,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:background="@null"
-            android:textColor="@null"
+            android:textColor="#00000000"
             android:visibility="visible" />
 
     </RelativeLayout>
@@ -110,7 +110,7 @@
         android:layout_height="@dimen/register_button_height"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="400dp"
+        android:layout_marginBottom="300dp"
         android:text="@string/qrcode_login_setfinished" />
 
 </LinearLayout>

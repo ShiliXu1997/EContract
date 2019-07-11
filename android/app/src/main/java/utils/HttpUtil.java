@@ -43,8 +43,7 @@ public class HttpUtil {
     private String mToken = "";
 
     public HttpUtil() {
-        this.mPhoneId = android.os.Build.SERIAL;
-//        this.mPhoneId = "Xiaomi 9 SE";
+        this.mPhoneId = android.os.Build.MODEL + "-" + android.os.Build.SERIAL;
     }
 
     public static HttpUtil getInstance() {
@@ -65,6 +64,14 @@ public class HttpUtil {
 
     public String getUserId() {
         return mUserId;
+    }
+
+    public String getPhoneId() {
+        return mPhoneId;
+    }
+
+    public String getBaseAddress() {
+        return mBaseAddress;
     }
 
     public String getUserPrivateKey() {

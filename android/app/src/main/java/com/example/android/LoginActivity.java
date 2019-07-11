@@ -64,6 +64,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private TextView mPinText7;
     private TextView mPinText8;
 
+    private ImageView line1;
+    private ImageView line2;
+    private ImageView line3;
+    private ImageView line4;
+    private ImageView line5;
+    private ImageView line6;
+    private ImageView line7;
+
+
     private Handler mHandler;
 
     @SuppressLint("HandlerLeak")
@@ -90,6 +99,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mPinText6 = findViewById(com.example.android.R.id.login_pin_textView6);
         mPinText7 = findViewById(com.example.android.R.id.login_pin_textView7);
         mPinText8 = findViewById(com.example.android.R.id.login_pin_textView8);
+
+        line1 = findViewById(R.id.login_pin_line1);
+        line2 = findViewById(R.id.login_pin_line2);
+        line3 = findViewById(R.id.login_pin_line3);
+        line4 = findViewById(R.id.login_pin_line4);
+        line5 = findViewById(R.id.login_pin_line5);
+        line6 = findViewById(R.id.login_pin_line6);
+        line7 = findViewById(R.id.login_pin_line7);
 
         mPinEdit.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         mPinEdit.setCursorVisible(false);
@@ -180,6 +197,24 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         qr_image.setImageBitmap(mBitmap);
         mUserIdEdit.setVisibility(EditText.INVISIBLE);
         mPinEdit.setVisibility(EditText.INVISIBLE);
+
+        mPinText1.setVisibility(TextView.INVISIBLE);
+        mPinText2.setVisibility(TextView.INVISIBLE);
+        mPinText3.setVisibility(TextView.INVISIBLE);
+        mPinText4.setVisibility(TextView.INVISIBLE);
+        mPinText5.setVisibility(TextView.INVISIBLE);
+        mPinText6.setVisibility(TextView.INVISIBLE);
+        mPinText7.setVisibility(TextView.INVISIBLE);
+        mPinText8.setVisibility(TextView.INVISIBLE);
+
+        line1.setVisibility(ImageView.INVISIBLE);
+        line2.setVisibility(ImageView.INVISIBLE);
+        line3.setVisibility(ImageView.INVISIBLE);
+        line4.setVisibility(ImageView.INVISIBLE);
+        line5.setVisibility(ImageView.INVISIBLE);
+        line6.setVisibility(ImageView.INVISIBLE);
+        line7.setVisibility(ImageView.INVISIBLE);
+
         qr_image.setVisibility(ImageView.VISIBLE);
     }
 
@@ -210,6 +245,23 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 if(getSupportActionBar().getTitle().toString()=="扫码登录") {
                     mUserIdEdit.setVisibility(EditText.VISIBLE);
                     mPinEdit.setVisibility(EditText.VISIBLE);
+                    mPinText1.setVisibility(TextView.VISIBLE);
+                    mPinText2.setVisibility(TextView.VISIBLE);
+                    mPinText3.setVisibility(TextView.VISIBLE);
+                    mPinText4.setVisibility(TextView.VISIBLE);
+                    mPinText5.setVisibility(TextView.VISIBLE);
+                    mPinText6.setVisibility(TextView.VISIBLE);
+                    mPinText7.setVisibility(TextView.VISIBLE);
+                    mPinText8.setVisibility(TextView.VISIBLE);
+
+                    line1.setVisibility(ImageView.VISIBLE);
+                    line2.setVisibility(ImageView.VISIBLE);
+                    line3.setVisibility(ImageView.VISIBLE);
+                    line4.setVisibility(ImageView.VISIBLE);
+                    line5.setVisibility(ImageView.VISIBLE);
+                    line6.setVisibility(ImageView.VISIBLE);
+                    line7.setVisibility(ImageView.VISIBLE);
+
                     qr_image.setVisibility(ImageView.INVISIBLE);
                     setActionBar("用户名登录");
                 } else {
@@ -274,6 +326,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             // 新增字符
             if (i1 == 0) {
                 if (key.length() == mMaxLength) {
+                    Toast.makeText(LoginActivity.this, "最多只能输入8位口令！", Toast.LENGTH_LONG).show();
                     Log.v(TAG, "最多只能输入8位口令！");
                     Log.v(TAG, key);
                 }
@@ -300,8 +353,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
             // 删除字符
             if (i2 == 0) {
-                if (key.isEmpty())
+                if (key.isEmpty()) {
+                    Toast.makeText(LoginActivity.this, "已经删无可删了！", Toast.LENGTH_LONG).show();
                     Log.v(TAG, "已经删无可删了！");
+                }
                 else {
                     key = key.substring(0, key.length() - 1);
                     if (!mPinText8.getText().toString().isEmpty())

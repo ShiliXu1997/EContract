@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">电子合同</string>
+    <string name="app_name">E-Contract</string>
 
     <string name="register_tittle">注册</string>
     <string name="register_userName">真实姓名</string>

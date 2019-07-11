@@ -110,7 +110,7 @@
             android:layout_height="@dimen/login_editText_height"
             android:layout_centerHorizontal="true"
             android:background="@null"
-            android:textColor="@null"
+            android:textColor="#00000000"
             android:visibility="visible" />
 
         <ImageView
