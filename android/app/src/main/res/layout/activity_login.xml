@@ -22,7 +22,80 @@
                 android:layout_height="@dimen/login_editText_height"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="30dp"
+                android:gravity="center_vertical"
+                android:textSize="18sp"
                 android:hint="@string/login_userId" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/login_editText_height"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="100dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <TextView
+                    style="@style/pin_style"
+                    android:id="@+id/login_pin_textView1" />
+
+                <ImageView
+                    android:id="@+id/login_pin_line1"
+                    style="@style/vertical_line_style"/>
+
+                <TextView
+                    style="@style/pin_style"
+                    android:id="@+id/login_pin_textView2" />
+
+                <ImageView
+                    android:id="@+id/login_pin_line2"
+                    style="@style/vertical_line_style"/>
+
+                <TextView
+                    style="@style/pin_style"
+                    android:id="@+id/login_pin_textView3" />
+
+                <ImageView
+                    android:id="@+id/login_pin_line3"
+                    style="@style/vertical_line_style"/>
+
+                <TextView
+                    style="@style/pin_style"
+                    android:id="@+id/login_pin_textView4" />
+
+                <ImageView
+                    android:id="@+id/login_pin_line4"
+                    style="@style/vertical_line_style"/>
+
+                <TextView
+                    style="@style/pin_style"
+                    android:id="@+id/login_pin_textView5" />
+
+                <ImageView
+                    android:id="@+id/login_pin_line5"
+                    style="@style/vertical_line_style"/>
+
+                <TextView
+                    style="@style/pin_style"
+                    android:id="@+id/login_pin_textView6" />
+
+                <ImageView
+                    android:id="@+id/login_pin_line6"
+                    style="@style/vertical_line_style"/>
+
+                <TextView
+                    style="@style/pin_style"
+                    android:id="@+id/login_pin_textView7" />
+
+                <ImageView
+                    android:id="@+id/login_pin_line7"
+                    style="@style/vertical_line_style"/>
+
+                <TextView
+                    style="@style/pin_style"
+                    android:id="@+id/login_pin_textView8" />
+
+            </LinearLayout>
 
             <EditText
                 android:id="@+id/login_pin_editText"
@@ -30,7 +103,9 @@
                 android:layout_height="@dimen/login_editText_height"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="100dp"
-                android:hint="@string/login_pin" />
+                android:background="@null"
+                android:textColor="@null"
+                android:visibility="visible" />
 
             <ImageView
                 android:id="@+id/qr_image"
@@ -40,6 +115,7 @@
                 android:visibility="invisible" />
 
         </RelativeLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"

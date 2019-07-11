@@ -6,13 +6,16 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -34,7 +37,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public static final int MESSAGE_PINLOGIN_SUCCESS_RESPONSE = 0x00003001;
     public static final int MESSAGE_PINLOGIN_FAIL_RESPONSE = 0x00003002;
 
-
     //从后台获取二维码成功
     public static final int GET_QR_CODE_SUCCESS = 0x00003003;
     public static final int GET_QR_CODE_FAIL = 0x00003004;
@@ -47,10 +49,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     private EditText mUserIdEdit;
-    private EditText mPinEdit;
     private Button mLoginButton;
     private Button mqrLoginButton;
     private ImageView qr_image;
+
+    private EditText mPinEdit;
+    private PinCodeTextWatcher mPinCodeTextWatcher;
+    private TextView mPinText1;
+    private TextView mPinText2;
+    private TextView mPinText3;
+    private TextView mPinText4;
+    private TextView mPinText5;
+    private TextView mPinText6;
+    private TextView mPinText7;
+    private TextView mPinText8;
 
     private Handler mHandler;
 
@@ -69,7 +81,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
         mPinEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
+        mPinEdit = findViewById(com.example.android.R.id.login_pin_editText);
+        mPinText1 = findViewById(com.example.android.R.id.login_pin_textView1);
+        mPinText2 = findViewById(com.example.android.R.id.login_pin_textView2);
+        mPinText3 = findViewById(com.example.android.R.id.login_pin_textView3);
+        mPinText4 = findViewById(com.example.android.R.id.login_pin_textView4);
+        mPinText5 = findViewById(com.example.android.R.id.login_pin_textView5);
+        mPinText6 = findViewById(com.example.android.R.id.login_pin_textView6);
+        mPinText7 = findViewById(com.example.android.R.id.login_pin_textView7);
+        mPinText8 = findViewById(com.example.android.R.id.login_pin_textView8);
 
+        mPinEdit.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        mPinEdit.setCursorVisible(false);
+
+        mPinCodeTextWatcher = new PinCodeTextWatcher();
+        mPinEdit.addTextChangedListener(mPinCodeTextWatcher);
 
         mLoginButton.setOnClickListener(this);
         mqrLoginButton.setOnClickListener(this);
@@ -188,7 +214,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     setActionBar("用户名登录");
                 } else {
                     String userid = mUserIdEdit.getText().toString();
-                    String pin = mPinEdit.getText().toString();
+                    String pin = getPinCode();
+                    if (pin.length() != 8) {
+                        Log.v(TAG, "口令必须是8位");
+                        return;
+                    }
+
                     if(userid.isEmpty()||pin.isEmpty())
                         return;
 
@@ -218,5 +249,84 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    private String getPinCode() {
+        return mPinCodeTextWatcher.getKey();
+    }
 
+    private class PinCodeTextWatcher implements TextWatcher {
+
+        private static final int mMaxLength = 8;
+        private static final String mDot = "●";
+
+        private String key = "";
+
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            // 新增字符
+            if (i1 == 0) {
+                if (key.length() == mMaxLength) {
+                    Log.v(TAG, "最多只能输入8位口令！");
+                    Log.v(TAG, key);
+                }
+                else {
+                    char now = charSequence.charAt(i);
+                    key += now;
+                    if (mPinText1.getText().toString().isEmpty())
+                        mPinText1.setText(mDot);
+                    else if (mPinText2.getText().toString().isEmpty())
+                        mPinText2.setText(mDot);
+                    else if (mPinText3.getText().toString().isEmpty())
+                        mPinText3.setText(mDot);
+                    else if (mPinText4.getText().toString().isEmpty())
+                        mPinText4.setText(mDot);
+                    else if (mPinText5.getText().toString().isEmpty())
+                        mPinText5.setText(mDot);
+                    else if (mPinText6.getText().toString().isEmpty())
+                        mPinText6.setText(mDot);
+                    else if (mPinText7.getText().toString().isEmpty())
+                        mPinText7.setText(mDot);
+                    else if (mPinText8.getText().toString().isEmpty())
+                        mPinText8.setText(mDot);
+                }
+            }
+            // 删除字符
+            if (i2 == 0) {
+                if (key.isEmpty())
+                    Log.v(TAG, "已经删无可删了！");
+                else {
+                    key = key.substring(0, key.length() - 1);
+                    if (!mPinText8.getText().toString().isEmpty())
+                        mPinText8.setText("");
+                    else if (!mPinText7.getText().toString().isEmpty())
+                        mPinText7.setText("");
+                    else if (!mPinText6.getText().toString().isEmpty())
+                        mPinText6.setText("");
+                    else if (!mPinText5.getText().toString().isEmpty())
+                        mPinText5.setText("");
+                    else if (!mPinText4.getText().toString().isEmpty())
+                        mPinText4.setText("");
+                    else if (!mPinText3.getText().toString().isEmpty())
+                        mPinText3.setText("");
+                    else if (!mPinText2.getText().toString().isEmpty())
+                        mPinText2.setText("");
+                    else if (!mPinText1.getText().toString().isEmpty())
+                        mPinText1.setText("");
+                }
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+
+        }
+    }
 }

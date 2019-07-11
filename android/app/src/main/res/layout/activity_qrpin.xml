@@ -6,26 +6,13 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/register_hint_textView"
+        android:id="@+id/qr_login_hint_textView"
         android:layout_width="350dp"
-        android:layout_height="150dp"
+        android:layout_height="100dp"
         android:layout_marginTop="@dimen/register_hint_marginTop"
         android:layout_gravity="center"
-        android:text="@string/register_beforeRegister_hint" />
+        android:text="@string/qr_pin_beforeLogin_hint" />
 
-    <EditText
-        android:id="@+id/register_usrName_editText"
-        android:layout_width="@dimen/register_editText_width"
-        android:layout_height="@dimen/register_editText_height"
-        android:layout_gravity="center"
-        android:hint="@string/register_userName" />
-
-    <EditText
-        android:id="@+id/register_cardId_editText"
-        android:layout_width="@dimen/register_editText_width"
-        android:layout_height="@dimen/register_editText_height"
-        android:layout_gravity="center"
-        android:hint="@string/register_cardId" />
 
     <RelativeLayout
         android:id="@+id/input"
@@ -38,6 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/login_editText_height"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
             android:gravity="center"
             android:orientation="horizontal"
             android:visibility="visible">
@@ -109,25 +97,20 @@
             android:layout_width="@dimen/login_editText_width"
             android:layout_height="@dimen/login_editText_height"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
             android:background="@null"
             android:textColor="@null"
             android:visibility="visible" />
 
-        <ImageView
-            android:id="@+id/qr_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:visibility="invisible" />
-
     </RelativeLayout>
 
     <Button
-        android:id="@+id/register_button"
+        android:id="@+id/qr_pin_login_button"
         android:layout_width="@dimen/register_button_width"
         android:layout_height="@dimen/register_button_height"
         android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/register_button_marginBottom"
-        android:text="@string/register_request" />
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="400dp"
+        android:text="@string/qrcode_login_setfinished" />
 
 </LinearLayout>
