@@ -129,6 +129,7 @@ public class QrPinActivity extends AppCompatActivity implements View.OnClickList
             // 新增字符
             if (i1 == 0) {
                 if (key.length() == mMaxLength) {
+                    Toast.makeText(QrPinActivity.this, "最多只能输入8位口令！", Toast.LENGTH_LONG).show();
                     Log.v(TAG, "最多只能输入8位口令！");
                     Log.v(TAG, key);
                 }
@@ -155,8 +156,10 @@ public class QrPinActivity extends AppCompatActivity implements View.OnClickList
             }
             // 删除字符
             if (i2 == 0) {
-                if (key.isEmpty())
+                if (key.isEmpty()) {
+                    Toast.makeText(QrPinActivity.this, "已经删无可删了！", Toast.LENGTH_LONG).show();
                     Log.v(TAG, "已经删无可删了！");
+                }
                 else {
                     key = key.substring(0, key.length() - 1);
                     if (!mPinText8.getText().toString().isEmpty())

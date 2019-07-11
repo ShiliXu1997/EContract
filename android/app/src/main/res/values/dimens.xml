@@ -13,7 +13,7 @@
     <dimen name="register_editText_height">60dp</dimen>
     <dimen name="register_button_width">200dp</dimen>
     <dimen name="register_button_height">70dp</dimen>
-    <dimen name="register_button_marginBottom">145dp</dimen>
+    <dimen name="register_button_marginBottom">150dp</dimen>
 
     <dimen name="login_hint_marginTop">200dp</dimen>
     <dimen name="login_hint_marginBottom">50dp</dimen>
@@ -36,8 +36,8 @@
     <dimen name="login_pinText_length">42dp</dimen>
 
     <dimen name="userPage_marginTop">480dp</dimen>
-    <dimen name="userPage_button_height">70dp</dimen>
-    <dimen name="userPage_button_width">100dp</dimen>
+    <dimen name="userPage_button_height">300dp</dimen>
+    <dimen name="userPage_button_width">300dp</dimen>
 
     <dimen name="confirm_marginTop">180dp</dimen>
     <dimen name="confirm_marginBottom">30dp</dimen>

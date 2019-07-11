@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +47,14 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView mPinText7;
     private TextView mPinText8;
 
+    private ImageView line1;
+    private ImageView line2;
+    private ImageView line3;
+    private ImageView line4;
+    private ImageView line5;
+    private ImageView line6;
+    private ImageView line7;
+
     private Handler mHandler;
 
     @Override
@@ -77,6 +86,14 @@ public class RegisterActivity extends AppCompatActivity {
         mPinText7 = findViewById(com.example.android.R.id.login_pin_textView7);
         mPinText8 = findViewById(com.example.android.R.id.login_pin_textView8);
 
+        line1 = findViewById(R.id.login_pin_line1);
+        line2 = findViewById(R.id.login_pin_line2);
+        line3 = findViewById(R.id.login_pin_line3);
+        line4 = findViewById(R.id.login_pin_line4);
+        line5 = findViewById(R.id.login_pin_line5);
+        line6 = findViewById(R.id.login_pin_line6);
+        line7 = findViewById(R.id.login_pin_line7);
+
         mPinEdit.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         mPinEdit.setCursorVisible(false);
 
@@ -100,9 +117,27 @@ public class RegisterActivity extends AppCompatActivity {
                             String successString = getString(com.example.android.R.string.register_waitForApprove_hint);
                             successString = String.format(successString, userId);
                             mHintTextView.setText(successString);
+
                             mUserNameEdit.setVisibility(EditText.INVISIBLE);
                             mCardIdEdit.setVisibility(EditText.INVISIBLE);
                             mPinEdit.setVisibility(EditText.INVISIBLE);
+                            mPinText1.setVisibility(TextView.INVISIBLE);
+                            mPinText2.setVisibility(TextView.INVISIBLE);
+                            mPinText3.setVisibility(TextView.INVISIBLE);
+                            mPinText4.setVisibility(TextView.INVISIBLE);
+                            mPinText5.setVisibility(TextView.INVISIBLE);
+                            mPinText6.setVisibility(TextView.INVISIBLE);
+                            mPinText7.setVisibility(TextView.INVISIBLE);
+                            mPinText8.setVisibility(TextView.INVISIBLE);
+
+                            line1.setVisibility(ImageView.INVISIBLE);
+                            line2.setVisibility(ImageView.INVISIBLE);
+                            line3.setVisibility(ImageView.INVISIBLE);
+                            line4.setVisibility(ImageView.INVISIBLE);
+                            line5.setVisibility(ImageView.INVISIBLE);
+                            line6.setVisibility(ImageView.INVISIBLE);
+                            line7.setVisibility(ImageView.INVISIBLE);
+
                             mRegisterButton.setText("去登录");
 
                             break;
@@ -156,6 +191,7 @@ public class RegisterActivity extends AppCompatActivity {
                             return;
                         }
 
+
                         HttpUtil httpUtil = HttpUtil.getInstance();
                         httpUtil.register(userName, cardId, pinCode, mHandler);
                     } else if(mRegisterButton.getText().toString().equals("去登录")){
@@ -196,6 +232,7 @@ public class RegisterActivity extends AppCompatActivity {
             // 新增字符
             if (i1 == 0) {
                 if (key.length() == mMaxLength) {
+                    Toast.makeText(RegisterActivity.this, "最多只能输入8位口令！", Toast.LENGTH_LONG).show();
                     Log.v(TAG, "最多只能输入8位口令！");
                     Log.v(TAG, key);
                 }
@@ -222,8 +259,10 @@ public class RegisterActivity extends AppCompatActivity {
             }
             // 删除字符
             if (i2 == 0) {
-                if (key.isEmpty())
+                if (key.isEmpty()) {
+                    Toast.makeText(RegisterActivity.this, "已经删无可删了！", Toast.LENGTH_LONG).show();
                     Log.v(TAG, "已经删无可删了！");
+                }
                 else {
                     key = key.substring(0, key.length() - 1);
                     if (!mPinText8.getText().toString().isEmpty())
