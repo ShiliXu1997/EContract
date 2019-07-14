@@ -72,3 +72,5 @@ EContract是一个基于PKI和二维码实现的身份验证和多点登录的�
 ![用户中心](images/userpage.png)
 
 ![扫码签署](images/qr_contract.png)
+
+![手机扫码](images/phone.png)
